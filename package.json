@@ -1,0 +1,36 @@
+{
+  "name": "rest-query-shared",
+  "version": "0.14.3",
+  "description": "Perform REST queries directly on your database! Shared bits between Node.js and browser.",
+  "main": "lib/restQueryShared.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "string-kit": "^0.3.11"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "jshint": "^2.5.6",
+    "mocha": "^2.2.5",
+    "browserify": "^12.0.1",
+    "testling": "^1.7.1",
+    "uglify-js": "^2.4.23"
+  },
+  "scripts": {
+    "test": "mocha -R dot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cronvel/rest-query-shared.git"
+  },
+  "keywords": [
+    "REST",
+    "query"
+  ],
+  "author": "Cédric Ronvel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cronvel/rest-query-shared/issues"
+  }
+}
