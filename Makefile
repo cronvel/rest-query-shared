@@ -56,7 +56,7 @@ TESTLING=./node_modules/.bin/testling
 
 # Build the browser lib
 browser/restQueryShared.js: lib/*.js
-	${BROWSERIFY} lib/browser.js -i buffer -i mongodb -s restQueryShared -o browser/restQueryShared.js
+	${BROWSERIFY} lib/browser.js -s restQueryShared -o browser/restQueryShared.js
 
 # Build the browser minified lib
 browser/restQueryShared.min.js: browser/restQueryShared.js
