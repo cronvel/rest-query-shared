@@ -1,6 +1,7 @@
 
 
-# restQuery: perform REST queries on your database! Shared bits between Node.js and browser.
+# restQuery: perform REST queries on your database!
 
-Work in progress, early alpha.
+Shared bits between Node.js and browser. 
 
+See [https://www.npmjs.com/package/rest-query-shared](restQuery).
