@@ -263,6 +263,10 @@ pathModule.parseNode = function parseNode( str , isPattern )
 				parsed.type = 'wildcard' ;
 				parsed.wildcard = 'anyId' ;
 				return parsed ;
+			case '[slugId]' :
+				parsed.type = 'wildcard' ;
+				parsed.wildcard = 'anySlugId' ;
+				return parsed ;
 			case '[document]' :
 				parsed.type = 'wildcard' ;
 				parsed.wildcard = 'anyDocument' ;
@@ -375,6 +379,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 		*				match any path node
 		...				match any children node?
 		[id]			match any ID node
+		[slugId]		match any SlugId node
 		[document]		match any ID and SlugId node
 		[collection]	match any collection node
 */
@@ -442,6 +447,11 @@ pathModule.match = function match( pathPattern , path )
 			case 'anyId' :
 				// Match any id
 				if ( path[ i ].type !== 'id' ) { return false ; }
+				break ;
+				
+			case 'anySlugId' :
+				// Match any slugId
+				if ( path[ i ].type !== 'slugId' ) { return false ; }
 				break ;
 				
 			case 'anyDocument' :

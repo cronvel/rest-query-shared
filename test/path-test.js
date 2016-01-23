@@ -360,6 +360,47 @@ describe( "Path pattern matching" , function() {
 		expect( pathMatch( '/[id]/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
+	it( "Pattern matching with the '[slugId]' wildcard" , function() {
+		expect( pathMatch( '/Board/[slugId]' , '/Board/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/[slugId]' , '/Board/some-slug' ) ).to.eql( {
+			path: {
+				type: 'slugId',
+				value: '/Board/some-slug',
+				node: 'some-slug'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Board',
+				node: 'Board'
+			}
+		} ) ;
+		expect( pathMatch( '/Board/[slugId]/Users/123456789012345678901234' , '/Board/my-board/Users/123456789012345678901234' ) ).to.eql( {
+			path: {
+				type: 'id',
+				value: '/Board/my-board/Users/123456789012345678901234',
+				node: '123456789012345678901234'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Board/my-board/Users',
+				node: 'Users'
+			}
+		} ) ;
+		expect( pathMatch( '/Board/[slugId]/Users/[slugId]' , '/Board/my-board/Users/bob' ) ).to.eql( {
+			path: {
+				type: 'slugId',
+				value: '/Board/my-board/Users/bob',
+				node: 'bob'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Board/my-board/Users',
+				node: 'Users'
+			}
+		} ) ;
+		expect( pathMatch( '/Board/123456789012345678901234/[slugId]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+	} ) ;
+	
 	it( "Pattern matching with the '[document]' wildcard" , function() {
 		expect( pathMatch( '/Board/[document]' , '/Board/123456789012345678901234' ) ).to.eql( {
 			path: {
