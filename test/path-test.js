@@ -156,6 +156,9 @@ describe( "Path pattern matching" , function() {
 	var pathMatch = restQuery.path.match ;
 	
 	it( "Basic pattern matching" , function() {
+		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
+		expect( pathMatch( '/Users' , '/' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/' , '/Users' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Users' , '/Users' ) ).to.be.ok() ;
 		expect( pathMatch( '/Users/' , '/Users' ) ).to.be.ok() ;
 		expect( pathMatch( '/Users' , '/Users/' ) ).to.be.ok() ;
