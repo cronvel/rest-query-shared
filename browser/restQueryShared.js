@@ -385,7 +385,9 @@ pathModule.parseNode = function parseNode( str , isPattern )
 */
 pathModule.match = function match( pathPattern , path )
 {
-	var i , iMax , iLast = 0 , iLastCollection = 0 , endWithAnySubPath , matches = {} , breakLoop ;
+	var i , iMax , j , jLast = 0 , jLastCollection = 0 ,
+		anySubPathCount = 0 , anySubPathMatchCount , jAfterSubPath ,
+		matches = {} ;
 	
 	try {
 		if ( ! Array.isArray( pathPattern ) ) { pathPattern = pathModule.parse( pathPattern , true ) ; }
@@ -398,23 +400,38 @@ pathModule.match = function match( pathPattern , path )
 	// If the parsed pattern is empty...
 	if ( pathPattern.length === 0 ) { return path.length === 0 ; }
 	
-	endWithAnySubPath = pathPattern[ pathPattern.length - 1 ].wildcard === 'anySubPath' ;
-	
-	// Fast exit: just check path and pathPattern length
-	if (
-		( ! endWithAnySubPath && path.length !== pathPattern.length ) ||
-		( endWithAnySubPath && path.length < pathPattern.length - 1 )
-	)
+	for ( i = 0 , iMax = pathPattern.length ; i < iMax ; i ++ )
 	{
+		if ( pathPattern[ i ].wildcard === 'anySubPath' ) { anySubPathCount ++ ; }
+	}
+	
+	if ( anySubPathCount )
+	{
+		// Fast exit: path length is too small
+		if ( anySubPathCount > 1 )
+		{
+			console.log( "Warning: multiple 'anySubPath' wildcards in the same pattern are not supported ATM" ) ;
+			return false ;
+		}
+		
+		anySubPathMatchCount = path.length - pathPattern.length + 1 ;
+		
+		if ( anySubPathMatchCount < 0 ) { return false ; }
+	}
+	else if ( path.length !== pathPattern.length )
+	{
+		// Fast exit: different path and pathPattern length
 		return false ;
 	}
 	
-	for ( i = 0 , iMax = pathPattern.length ; i < iMax && ! breakLoop ; i ++ )
+	// i	iterate the pattern
+	// j	iterate the path
+	for ( i = 0 , j = 0 , iMax = pathPattern.length ; i < iMax ; i ++ , j ++ )
 	{
-		if ( path[ i ] )
+		if ( path[ j ] )
 		{
-			iLast = i ;
-			if ( path[ i ].type === 'collection' && pathPattern[ i ].wildcard !== 'anySubPath' ) { iLastCollection = i ; }
+			jLast = j ;
+			if ( path[ j ].type === 'collection' && pathPattern[ i ].wildcard !== 'anySubPath' ) { jLastCollection = j ; }
 		}
 		
 		switch ( pathPattern[ i ].wildcard )
@@ -424,51 +441,82 @@ pathModule.match = function match( pathPattern , path )
 				break ;
 				
 			case 'anySubPath' :
-				// Always match globally immediately!
-				if ( path[ i ] )
+				// Always match multiple path node
+				
+				
+				if ( j > 0 )
 				{
-					matches.subPath = {
-						type: path[ path.length - 1 ].type ,
-						value: '/' + path.slice( i ).map( mapNode ).join( '/' ) ,
-						node: path[ path.length - 1 ].node
+					matches.path = {
+						type: path[ j - 1 ].type ,
+						value: '/' + path.slice( 0 , j ).map( mapNode ).join( '/' ) ,
+						node: path[ j - 1 ].node
 					} ;
 					
+					matches.collectionPath = {
+						type: path[ jLastCollection ].type ,
+						value: '/' + path.slice( 0 , jLastCollection + 1 ).map( mapNode ).join( '/' ) ,
+						node: path[ jLastCollection ].node
+					} ;
+				}
+				else
+				{
 					matches.path = {
-						type: path[ i - 1 ].type ,
-						value: '/' + path.slice( 0 , i ).map( mapNode ).join( '/' ) ,
-						node: path[ i - 1 ].node ,
-						selectedChild: {
-							type: path[ i ].type ,
-							node: path[ i ].node
-						}
+						type: null ,
+						value: '/' ,
+						node: null
+					} ;
+					
+					matches.collectionPath = null ;
+				}
+				
+				if ( j < path.length )
+				{
+					matches.path.selectedChild = {
+						type: path[ j ].type ,
+						node: path[ j ].node
 					} ;
 				}
 				
-				breakLoop = true ;
+				if ( anySubPathMatchCount )
+				{
+					//console.log( ">>>" , pathPattern.length , path.length , j , anySubPathMatchCount , j + anySubPathMatchCount - 1 ) ;
+					matches.subPath = {
+						type: path[ j + anySubPathMatchCount - 1 ].type ,
+						value: '/' + path.slice( j , j + anySubPathMatchCount ).map( mapNode ).join( '/' ) ,
+						node: path[ j + anySubPathMatchCount - 1 ].node
+					} ;
+					
+				}
+				
+				//console.log( path.length , j , anySubPathMatchCount ) ;
+				jAfterSubPath = j + anySubPathMatchCount ;
+				j += anySubPathMatchCount - 1 ; // the loop already has its own j++
+				
+				//console.log( j , jAfterSubPath ) ;
 				break ;
 				
 			case 'anyId' :
 				// Match any id
-				if ( path[ i ].type !== 'id' ) { return false ; }
+				if ( path[ j ].type !== 'id' ) { return false ; }
 				break ;
 				
 			case 'anySlugId' :
 				// Match any slugId
-				if ( path[ i ].type !== 'slugId' ) { return false ; }
+				if ( path[ j ].type !== 'slugId' ) { return false ; }
 				break ;
 				
 			case 'anyDocument' :
 				// Match any id
-				if ( path[ i ].type !== 'id' && path[ i ].type !== 'slugId' ) { return false ; }
+				if ( path[ j ].type !== 'id' && path[ j ].type !== 'slugId' ) { return false ; }
 				break ;
 				
 			case 'anyCollection' :
 				// Match any collection
-				if ( path[ i ].type !== 'collection' ) { return false ; }
+				if ( path[ j ].type !== 'collection' ) { return false ; }
 				break ;
 				
 			default :
-				if ( pathPattern[ i ].type !== path[ i ].type || pathPattern[ i ].identifier !== path[ i ].identifier )
+				if ( pathPattern[ i ].type !== path[ j ].type || pathPattern[ i ].identifier !== path[ j ].identifier )
 				{
 					return false ;
 				}
@@ -476,20 +524,32 @@ pathModule.match = function match( pathPattern , path )
 	}
 	
 	
-	if ( ! matches.path )
+	if ( ! ( 'path' in matches ) )
 	{
 		matches.path = {
-			type: path[ iLast ].type ,
+			type: path[ jLast ].type ,
 			value: '/' + path.map( mapNode ).join( '/' ) ,
-			node: path[ iLast ].node
+			node: path[ jLast ].node
 		} ;
 	}
 	
-	matches.collectionPath = {
-		type: path[ iLastCollection ].type ,
-		value: '/' + path.slice( 0 , iLastCollection + 1 ).map( mapNode ).join( '/' ) ,
-		node: path[ iLastCollection ].node
-	} ;
+	if ( jAfterSubPath !== undefined && jAfterSubPath < path.length )
+	{
+		matches.endPath = {
+			type: path[ jLast ].type ,
+			value: '/' + path.slice( jAfterSubPath ).map( mapNode ).join( '/' ) ,
+			node: path[ jLast ].node
+		} ;
+	}
+	
+	if ( ! ( 'collectionPath' in matches ) )
+	{
+		matches.collectionPath = {
+			type: path[ jLastCollection ].type ,
+			value: '/' + path.slice( 0 , jLastCollection + 1 ).map( mapNode ).join( '/' ) ,
+			node: path[ jLastCollection ].node
+		} ;
+	}
 	
 	return matches ;
 } ;

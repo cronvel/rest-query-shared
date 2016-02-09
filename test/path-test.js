@@ -234,7 +234,7 @@ describe( "Path pattern matching" , function() {
 		expect( pathMatch( '/Board/123456789012345678901234/Users/*' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "Pattern matching with the '...' wildcard" , function() {
+	it( "Pattern matching with the '...' wildcard at the end of the pattern" , function() {
 		expect( pathMatch( '/Board/...' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
@@ -319,6 +319,104 @@ describe( "Path pattern matching" , function() {
 			} ) ;
 		
 		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/...' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
+	} ) ;
+	
+	it( "Pattern matching with the '...' wildcard at the begining of the pattern" , function() {
+		expect( pathMatch( '.../Users/[id]' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+			.to.eql( {
+				path: {
+					type: null,
+					value: '/',
+					node: null,
+					selectedChild: {
+						type: 'collection',
+						node: 'Board'
+					}
+				},
+				collectionPath: null ,
+				subPath: {
+					type: 'id',
+					value: '/Board/123456789012345678901234',
+					node: '123456789012345678901234'
+				} ,
+				endPath: {
+					type: 'id',
+					value: '/Users/123456789012345678901234',
+					node: '123456789012345678901234'
+				}
+			} ) ;
+		
+		expect( pathMatch( '.../Users/[id]' , '/Users/123456789012345678901234' ) )
+			.to.eql( {
+				path: {
+					type: null,
+					value: '/',
+					node: null,
+					selectedChild: {
+						type: 'collection',
+						node: 'Users'
+					}
+				},
+				collectionPath: null ,
+				endPath: {
+					type: 'id',
+					value: '/Users/123456789012345678901234',
+					node: '123456789012345678901234'
+				}
+			} ) ;
+	} ) ;
+	
+	it( "Pattern matching with the '...' wildcard at the middle of the pattern" , function() {
+		expect( pathMatch( '/Blogs/[id]/.../Comments/[id]' , '/Blogs/123456789012345678901234/Articles/123456789012345678901234/Comments/123456789012345678901234' ) )
+			.to.eql( {
+				path: {
+					type: 'id',
+					value: '/Blogs/123456789012345678901234',
+					node: '123456789012345678901234',
+					selectedChild: {
+						type: 'collection',
+						node: 'Articles'
+					}
+				},
+				collectionPath: {
+					node: 'Blogs',
+					type: 'collection',
+					value: '/Blogs'
+				} ,
+				subPath: {
+					type: 'id',
+					value: '/Articles/123456789012345678901234',
+					node: '123456789012345678901234'
+				} ,
+				endPath: {
+					type: 'id',
+					value: '/Comments/123456789012345678901234',
+					node: '123456789012345678901234'
+				}
+			} ) ;
+		
+		expect( pathMatch( '/Blogs/[id]/.../Comments/[id]' , '/Blogs/123456789012345678901234/Comments/123456789012345678901234' ) )
+			.to.eql( {
+				path: {
+					type: 'id',
+					value: '/Blogs/123456789012345678901234',
+					node: '123456789012345678901234',
+					selectedChild: {
+						type: 'collection',
+						node: 'Comments'
+					}
+				},
+				collectionPath: {
+					node: 'Blogs',
+					type: 'collection',
+					value: '/Blogs'
+				} ,
+				endPath: {
+					type: 'id',
+					value: '/Comments/123456789012345678901234',
+					node: '123456789012345678901234'
+				}
+			} ) ;
 	} ) ;
 	
 	it( "Pattern matching with the '[id]' wildcard" , function() {
