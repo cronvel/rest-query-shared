@@ -25,6 +25,9 @@
 	SOFTWARE.
 */
 
+"use strict" ;
+
+
 
 module.exports = {
 	path: require( './path.js' )
@@ -56,6 +59,8 @@ module.exports = {
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 */
+
+"use strict" ;
 
 
 
@@ -175,6 +180,8 @@ module.exports = charmap ;
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 */
+
+"use strict" ;
 
 
 
