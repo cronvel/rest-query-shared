@@ -405,7 +405,7 @@ pathModule.match = function match( pathPattern , path )
 	}
 	
 	// If the parsed pattern is empty...
-	if ( pathPattern.length === 0 ) { return path.length === 0 ; }
+	if ( pathPattern.length === 0 ) { return path.length === 0 ? matches : false ; }
 	
 	for ( i = 0 , iMax = pathPattern.length ; i < iMax ; i ++ )
 	{
@@ -568,6 +568,55 @@ function mapNode( e ) { return e.node ; }
 
 
 
+// Same than parse(), but for full path (path + query + fragment)
+pathModule.fullPathParse = function fullPathParse( fullPath , isPattern )
+{
+	if ( fullPath && typeof fullPath === 'object'  ) { return fullPath ; }	// already parsed
+	
+	var matches , parsed = {} ;
+	
+	matches = fullPath.match( /^(\/[^#?]*)(?:\?([^#?]+))?(?:#([^#?]+))?$/ ) ;
+	if ( ! matches ) { throw new Error( "[restQuery] .fullPathParse() 'fullPath' should be a valid path" ) ; }
+	
+	parsed.path = pathModule.parse( matches[ 1 ] , isPattern ) ;
+	
+	// /!\ Query string is not parsed much ATM /!\
+	if ( matches[ 2 ] ) { parsed.query = matches[ 2 ] ; }
+	
+	if ( matches[ 3 ] ) { parsed.fragment = matches[ 3 ] ; }
+	
+	return parsed ;
+} ;
+
+
+
+// Same than match(), but for a full path (path + query + fragment)
+pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath )
+{
+	var matches ;
+	
+	try {
+		if ( ! fullPathPattern || typeof fullPathPattern !== 'object' ) { fullPathPattern = pathModule.fullPathParse( fullPathPattern , true ) ; }
+		if ( ! fullPath || fullPath !== 'object' ) { fullPath = pathModule.fullPathParse( fullPath ) ; }
+	}
+	catch ( error ) {
+		return false ;
+	}
+	
+	// /!\ Query string is used for matching ATM /!\
+	
+	if ( ( fullPathPattern.fragment || null ) !== ( fullPath.fragment || null ) ) { return false ; }
+	
+	matches = pathModule.match( fullPathPattern.path , fullPath.path ) ;
+	if ( ! matches ) { return false ; }
+	
+	// Add the fragment
+	if ( fullPath.fragment ) { matches.fragment = fullPath.fragment ; }
+	
+	return matches ;
+} ;
+
+
 
 },{"./charmap.js":2,"string-kit/lib/camel.js":4}],4:[function(require,module,exports){
 /*
@@ -595,6 +644,8 @@ function mapNode( e ) { return e.node ; }
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 */
+
+"use strict" ;
 
 
 

@@ -153,6 +153,24 @@ describe( "Path's node parsing" , function() {
 
 
 
+describe( "Path parsing" , function() {
+	
+	var parse = restQuery.path.parse ;
+	
+	it( "should parse a full URL path, returning an array of node" , function() {
+		expect( parse( '/' ) ).to.eql( [] ) ;
+		expect( parse( '/Users' ) ).to.eql( [ { type: 'collection' , identifier: 'users' , node: 'Users' } ] ) ;
+		expect( parse( '/Users/51d18492541d2e3614ca2a80' ) ).to.eql( [
+			{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
+			{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+		] ) ;
+		
+		// /!\ more test are needed, but no time for that now /!\
+	} ) ;
+} ) ;
+
+
+
 describe( "Path pattern matching" , function() {
 	
 	var pathMatch = restQuery.path.match ;
@@ -574,4 +592,136 @@ describe( "Path pattern matching" , function() {
 } ) ;
 
 	
+
+describe( "Full path parsing" , function() {
+	
+	var parse = restQuery.path.fullPathParse ;
+	
+	it( "should parse a full URL path, returning an array of node" , function() {
+		expect( parse( '/' ) ).to.eql( { path: [] } ) ;
+		expect( parse( '/Users' ) ).to.eql( { path: [ { type: 'collection' , identifier: 'users' , node: 'Users' } ] } ) ;
+		expect( parse( '/Users/51d18492541d2e3614ca2a80' ) ).to.eql( {
+			path: [
+				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+			]
+		} ) ;
+		expect( parse( '/Users/51d18492541d2e3614ca2a80#edit' ) ).to.eql( {
+			path: [
+				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+			] ,
+			fragment: 'edit'
+		} ) ;
+		expect( parse( '/Users/51d18492541d2e3614ca2a80?filter=name' ) ).to.eql( {
+			path: [
+				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+			] ,
+			query: 'filter=name'
+		} ) ;
+		expect( parse( '/Users/51d18492541d2e3614ca2a80?filter=name#edit' ) ).to.eql( {
+			path: [
+				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+			] ,
+			query: 'filter=name',
+			fragment: 'edit'
+		} ) ;
+		
+		// /!\ more test are needed, but no time for that now /!\
+	} ) ;
+} ) ;
+
+
+
+describe( "Full path pattern matching" , function() {
+	
+	var pathMatch = restQuery.path.fullPathMatch ;
+	
+	it( "Basic pattern matching" , function() {
+		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
+		expect( pathMatch( '/#edit' , '/' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/#edit' , '/#edit' ) ).to.be.ok() ;
+		expect( pathMatch( '/#edit' , '/#ed' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/#ed' , '/#edit' ) ).not.to.be.ok() ;
+		
+		expect( pathMatch( '/Users' , '/' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users#edit' , '/#edit' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/' , '/Users' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/#edit' , '/Users#edit' ) ).not.to.be.ok() ;
+		
+		expect( pathMatch( '/Users' , '/Users' ) ).to.be.ok() ;
+		expect( pathMatch( '/Users#edit' , '/Users#edit' ) ).to.be.ok() ;
+		expect( pathMatch( '/Users#ed' , '/Users#edit' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users#edit' , '/Users#ed' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users#edit' , '/Users' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users' , '/Users#edit' ) ).not.to.be.ok() ;
+		
+		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ).to.eql( {
+			path: {
+				type: 'id',
+				value: '/Users/123456789012345678901234' ,
+				node: '123456789012345678901234'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Users' ,
+				node: 'Users'
+			}
+		} ) ;
+		
+		expect( pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234#edit' ) ).to.eql( {
+			path: {
+				type: 'id',
+				value: '/Users/123456789012345678901234' ,
+				node: '123456789012345678901234'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Users' ,
+				node: 'Users'
+			} ,
+			fragment: 'edit'
+		} ) ;
+		
+		expect( pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234#edit' ) ).not.to.be.ok() ;
+	} ) ;
+	
+	it( "Complex pattern matching" , function() {
+		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+			path: {
+				type: 'id',
+				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				node: '123456789012345678901234'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Board/123456789012345678901234/Users',
+				node: 'Users'
+			}
+		} ) ;
+		
+		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.eql( {
+			path: {
+				type: 'id',
+				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				node: '123456789012345678901234'
+			},
+			collectionPath: {
+				type: 'collection' ,
+				value: '/Board/123456789012345678901234/Users',
+				node: 'Users'
+			},
+			fragment: 'edit'
+		} ) ;
+		
+		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).not.to.be.ok() ;
+		
+		// /!\ more test are needed, but no time for that now /!\
+	} ) ;
+} ) ;
+
 
