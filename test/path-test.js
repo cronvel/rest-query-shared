@@ -642,6 +642,7 @@ describe( "Full path pattern matching" , function() {
 	it( "Basic pattern matching" , function() {
 		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
 		expect( pathMatch( '/#edit' , '/' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/' , '/#edit' ) ).to.be.ok() ;
 		expect( pathMatch( '/#edit' , '/#edit' ) ).to.be.ok() ;
 		expect( pathMatch( '/#edit' , '/#ed' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/#ed' , '/#edit' ) ).not.to.be.ok() ;
@@ -656,7 +657,7 @@ describe( "Full path pattern matching" , function() {
 		expect( pathMatch( '/Users#ed' , '/Users#edit' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Users#edit' , '/Users#ed' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Users#edit' , '/Users' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users' , '/Users#edit' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users' , '/Users#edit' ) ).to.be.ok() ;
 		
 		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
@@ -686,7 +687,7 @@ describe( "Full path pattern matching" , function() {
 		} ) ;
 		
 		expect( pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234#edit' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 	} ) ;
 	
 	it( "Complex pattern matching" , function() {
@@ -718,7 +719,7 @@ describe( "Full path pattern matching" , function() {
 		} ) ;
 		
 		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 		
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;

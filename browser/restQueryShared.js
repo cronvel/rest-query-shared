@@ -581,9 +581,9 @@ pathModule.fullPathParse = function fullPathParse( fullPath , isPattern )
 	parsed.path = pathModule.parse( matches[ 1 ] , isPattern ) ;
 	
 	// /!\ Query string is not parsed much ATM /!\
-	if ( matches[ 2 ] ) { parsed.query = matches[ 2 ] ; }
+	if ( matches[ 2 ] !== undefined ) { parsed.query = matches[ 2 ] ; }
 	
-	if ( matches[ 3 ] ) { parsed.fragment = matches[ 3 ] ; }
+	if ( matches[ 3 ] !== undefined ) { parsed.fragment = matches[ 3 ] ; }
 	
 	return parsed ;
 } ;
@@ -605,7 +605,7 @@ pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath )
 	
 	// /!\ Query string is used for matching ATM /!\
 	
-	if ( ( fullPathPattern.fragment || null ) !== ( fullPath.fragment || null ) ) { return false ; }
+	if ( typeof fullPathPattern.fragment === 'string' && fullPathPattern.fragment !== ( fullPath.fragment || '' ) ) { return false ; }
 	
 	matches = pathModule.match( fullPathPattern.path , fullPath.path ) ;
 	if ( ! matches ) { return false ; }
