@@ -140,8 +140,21 @@ describe( "Path's node parsing" , function() {
 		expect( parsePathNode( '~name.' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( '~name..' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( '~.name' ) ).to.be.an( Error ) ;
-		expect( parsePathNode( '~~name' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( '~embedded.data.' ) ).to.be.an( Error ) ;
+	} ) ;
+	
+	it( "should parse a valid multi-link property node as a multi-link property of the current object" , function() {
+		expect( parsePathNode( '~~name' ) ).to.eql( { type: 'multiLinkProperty' , identifier: 'name' , node: '~~name' } ) ;
+		expect( parsePathNode( '~~n' ) ).to.eql( { type: 'multiLinkProperty' , identifier: 'n' , node: '~~n' } ) ;
+		
+		// Invalid entries
+		expect( parsePathNode( '~~' ) ).to.be.an( Error ) ;
+		expect( parsePathNode( '~~.' ) ).to.be.an( Error ) ;
+		expect( parsePathNode( '~~embedded.data' ) ).to.be.an( Error ) ;
+		expect( parsePathNode( '~~name.' ) ).to.be.an( Error ) ;
+		expect( parsePathNode( '~~name..' ) ).to.be.an( Error ) ;
+		expect( parsePathNode( '~~.name' ) ).to.be.an( Error ) ;
+		expect( parsePathNode( '~~embedded.data.' ) ).to.be.an( Error ) ;
 	} ) ;
 	
 	it( "edge cases" , function() {	

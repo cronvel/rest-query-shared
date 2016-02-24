@@ -75,6 +75,7 @@ var charmap = {
 	methodRegExp: '^[A-Z][A-Z0-9-]*$' ,
 	propertyRegExp: '^(\.[a-zA-Z0-9_-]+)+$' ,
 	linkPropertyRegExp: '^~[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*$' ,
+	multiLinkPropertyRegExp: '^~~[a-zA-Z0-9_-]+$' ,
 	idRegExp: '^[0-9a-f]{24}$' ,
 	rangeRegExp: '^([0-9]+)(?:-([0-9]+))?$' ,
 	slugIdRegExp: '^[a-z0-9-]{1,72}$' ,
@@ -334,19 +335,31 @@ pathModule.parseNode = function parseNode( str , isPattern )
 	}
 	
 	// Then, check if it is a property
-	if ( str[ 0 ] === '.' && str.match( charmap.propertyRegExp ) )
+	if ( str[ 0 ] === '.' )
 	{
+		if ( ! str.match( charmap.propertyRegExp ) ) { throw new Error( '[restQuery] parseNode() : argument #0 does not validate' ) ; }
 		parsed.type = 'property' ;
 		parsed.identifier = str.slice( 1 ) ;
 		return parsed ;
 	}
 	
 	// Then, check if it is a property link
-	if ( str[ 0 ] === '~' && str.match( charmap.linkPropertyRegExp ) )
+	if ( str[ 0 ] === '~' )
 	{
-		parsed.type = 'linkProperty' ;
-		parsed.identifier = str.slice( 1 ) ;
-		return parsed ;
+		if ( str[ 1 ] === '~' )
+		{
+			if ( ! str.match( charmap.multiLinkPropertyRegExp ) ) { throw new Error( '[restQuery] parseNode() : argument #0 does not validate' ) ; }
+			parsed.type = 'multiLinkProperty' ;
+			parsed.identifier = str.slice( 2 ) ;
+			return parsed ;
+		}
+		else
+		{
+			if ( ! str.match( charmap.linkPropertyRegExp ) ) { throw new Error( '[restQuery] parseNode() : argument #0 does not validate' ) ; }
+			parsed.type = 'linkProperty' ;
+			parsed.identifier = str.slice( 1 ) ;
+			return parsed ;
+		}
 	}
 	
 	// Then, check if it is an offset or a range
