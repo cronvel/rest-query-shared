@@ -56,38 +56,38 @@ describe( "Path's node parsing" , function() {
 	} ;
 	
 	it( "should parse a valid collection node as an collection's child of the current object" , function() {
-		expect( parsePathNode( 'Users' ) ).to.eql( { type: 'collection' , identifier: 'users' , node: 'Users' } ) ;
-		expect( parsePathNode( 'U' ) ).to.eql( { type: 'collection' , identifier: 'u' , node: 'U' } ) ;
+		expect( parsePathNode( 'Users' ) ).to.eql( { type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ) ;
+		expect( parsePathNode( 'U' ) ).to.eql( { type: 'collection' , isCollection: true , isDocument: false , identifier: 'u' , node: 'U' } ) ;
 	} ) ;
 	
 	it( "should parse a valid method node as a method" , function() {
-		expect( parsePathNode( 'REGENERATE-TOKEN' ) ).to.eql( { type: 'method' , identifier: 'regenerateToken' , node: 'REGENERATE-TOKEN' } ) ;
-		expect( parsePathNode( 'FILE' ) ).to.eql( { type: 'method' , identifier: 'file' , node: 'FILE' } ) ;
+		expect( parsePathNode( 'REGENERATE-TOKEN' ) ).to.eql( { type: 'method' , isCollection: false , isDocument: false , identifier: 'regenerateToken' , node: 'REGENERATE-TOKEN' } ) ;
+		expect( parsePathNode( 'FILE' ) ).to.eql( { type: 'method' , isCollection: false , isDocument: false , identifier: 'file' , node: 'FILE' } ) ;
 	} ) ;
 	
 	it( "should parse a valid offset node as an offset" , function() {
-		expect( parsePathNode( '1258' ) ).to.eql( { type: 'offset' , identifier: 1258 , node: '1258' } ) ;
-		expect( parsePathNode( '01258' ) ).to.eql( { type: 'offset' , identifier: 1258 , node: '01258' } ) ;
-		expect( parsePathNode( '0' ) ).to.eql( { type: 'offset' , identifier: 0 , node: '0' } ) ;
-		expect( parsePathNode( '000' ) ).to.eql( { type: 'offset' , identifier: 0 , node: '000' } ) ;
+		expect( parsePathNode( '1258' ) ).to.eql( { type: 'offset' , isCollection: false , isDocument: true , identifier: 1258 , node: '1258' } ) ;
+		expect( parsePathNode( '01258' ) ).to.eql( { type: 'offset' , isCollection: false , isDocument: true , identifier: 1258 , node: '01258' } ) ;
+		expect( parsePathNode( '0' ) ).to.eql( { type: 'offset' , isCollection: false , isDocument: true , identifier: 0 , node: '0' } ) ;
+		expect( parsePathNode( '000' ) ).to.eql( { type: 'offset' , isCollection: false , isDocument: true , identifier: 0 , node: '000' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( '000b' ).type ).not.to.be.equal( 'offset' ) ;
 	} ) ;
 	
 	it( "should parse a valid range node as a range" , function() {
-		expect( parsePathNode( '0-100' ) ).to.eql( { type: 'range' , min: 0 , max: 100 , node: '0-100' } ) ;
-		expect( parsePathNode( '156-345' ) ).to.eql( { type: 'range' , min: 156 , max: 345 , node: '156-345' } ) ;
+		expect( parsePathNode( '0-100' ) ).to.eql( { type: 'range' , isCollection: true , isDocument: false , min: 0 , max: 100 , node: '0-100' } ) ;
+		expect( parsePathNode( '156-345' ) ).to.eql( { type: 'range' , isCollection: true , isDocument: false , min: 156 , max: 345 , node: '156-345' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( '12-13-15' ).type ).not.to.be.equal( 'range' ) ;
 	} ) ;
 	
 	it( "should parse a valid ID node as an ID" , function() {
-		expect( parsePathNode( '51d18492541d2e3614ca2a80' ) ).to.eql( { type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' } ) ;
-		expect( parsePathNode( 'a1d18492541d2e3614ca2a80' ) ).to.eql( { type: 'id' , identifier: 'a1d18492541d2e3614ca2a80' , node: 'a1d18492541d2e3614ca2a80' } ) ;
-		expect( parsePathNode( 'aaaaaaaaaaaaaaaaaaaaaaaa' ) ).to.eql( { type: 'id' , identifier: 'aaaaaaaaaaaaaaaaaaaaaaaa' , node: 'aaaaaaaaaaaaaaaaaaaaaaaa' } ) ;
-		expect( parsePathNode( '111111111111111111111111' ) ).to.eql( { type: 'id' , identifier: '111111111111111111111111' , node: '111111111111111111111111' } ) ;
+		expect( parsePathNode( '51d18492541d2e3614ca2a80' ) ).to.eql( { type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' } ) ;
+		expect( parsePathNode( 'a1d18492541d2e3614ca2a80' ) ).to.eql( { type: 'id' , isCollection: false , isDocument: true , identifier: 'a1d18492541d2e3614ca2a80' , node: 'a1d18492541d2e3614ca2a80' } ) ;
+		expect( parsePathNode( 'aaaaaaaaaaaaaaaaaaaaaaaa' ) ).to.eql( { type: 'id' , isCollection: false , isDocument: true , identifier: 'aaaaaaaaaaaaaaaaaaaaaaaa' , node: 'aaaaaaaaaaaaaaaaaaaaaaaa' } ) ;
+		expect( parsePathNode( '111111111111111111111111' ) ).to.eql( { type: 'id' , isCollection: false , isDocument: true , identifier: '111111111111111111111111' , node: '111111111111111111111111' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( '51d18492541d2e3614ca2a8' ).type ).not.to.be.equal( 'id' ) ;
@@ -96,15 +96,15 @@ describe( "Path's node parsing" , function() {
 	} ) ;
 	
 	it( "should parse a valid slugId node as a slugId" , function() {
-		expect( parsePathNode( 'abc' ) ).to.eql( { type: 'slugId' , identifier: 'abc' , node: 'abc' } ) ;
-		expect( parsePathNode( 'cronvel' ) ).to.eql( { type: 'slugId' , identifier: 'cronvel' , node: 'cronvel' } ) ;
-		expect( parsePathNode( 'c20nv31' ) ).to.eql( { type: 'slugId' , identifier: 'c20nv31' , node: 'c20nv31' } ) ;
-		expect( parsePathNode( 'my-blog-entry' ) ).to.eql( { type: 'slugId' , identifier: 'my-blog-entry' , node: 'my-blog-entry' } ) ;
-		expect( parsePathNode( 'a-24-characters-long-sid' ) ).to.eql( { type: 'slugId' , identifier: 'a-24-characters-long-sid' , node: 'a-24-characters-long-sid' } ) ;
-		expect( parsePathNode( 'agaaaaaaaaaaaaaaaaaaaaaa' ) ).to.eql( { type: 'slugId' , identifier: 'agaaaaaaaaaaaaaaaaaaaaaa' , node: 'agaaaaaaaaaaaaaaaaaaaaaa' } ) ;
-		expect( parsePathNode( '01b' ) ).to.eql( { type: 'slugId' , identifier: '01b' , node: '01b' } ) ;
-		expect( parsePathNode( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' ) ).to.eql( { type: 'slugId' , identifier: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' , node: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' } ) ;
-		expect( parsePathNode( 'a' ) ).to.eql( { type: 'slugId' , identifier: 'a' , node: 'a' } ) ;
+		expect( parsePathNode( 'abc' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'abc' , node: 'abc' } ) ;
+		expect( parsePathNode( 'cronvel' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'cronvel' , node: 'cronvel' } ) ;
+		expect( parsePathNode( 'c20nv31' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'c20nv31' , node: 'c20nv31' } ) ;
+		expect( parsePathNode( 'my-blog-entry' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'my-blog-entry' , node: 'my-blog-entry' } ) ;
+		expect( parsePathNode( 'a-24-characters-long-sid' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'a-24-characters-long-sid' , node: 'a-24-characters-long-sid' } ) ;
+		expect( parsePathNode( 'agaaaaaaaaaaaaaaaaaaaaaa' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'agaaaaaaaaaaaaaaaaaaaaaa' , node: 'agaaaaaaaaaaaaaaaaaaaaaa' } ) ;
+		expect( parsePathNode( '01b' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: '01b' , node: '01b' } ) ;
+		expect( parsePathNode( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' , node: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' } ) ;
+		expect( parsePathNode( 'a' ) ).to.eql( { type: 'slugId' , isCollection: false , isDocument: true , identifier: 'a' , node: 'a' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( 'afaaaaaaaaaaaaaaaaaaaaaa' ).type ).not.to.be.equal( 'slugId' ) ;
@@ -114,10 +114,10 @@ describe( "Path's node parsing" , function() {
 	} ) ;
 	
 	it( "should parse a valid property node as a property of the current object" , function() {
-		expect( parsePathNode( '.bob' ) ).to.eql( { type: 'property' , identifier: 'bob' , node: '.bob' } ) ;
-		expect( parsePathNode( '.name' ) ).to.eql( { type: 'property' , identifier: 'name' , node: '.name' } ) ;
-		expect( parsePathNode( '.n' ) ).to.eql( { type: 'property' , identifier: 'n' , node: '.n' } ) ;
-		expect( parsePathNode( '.embedded.data' ) ).to.eql( { type: 'property' , identifier: 'embedded.data' , node: '.embedded.data' } ) ;
+		expect( parsePathNode( '.bob' ) ).to.eql( { type: 'property' , isCollection: false , isDocument: true , identifier: 'bob' , node: '.bob' } ) ;
+		expect( parsePathNode( '.name' ) ).to.eql( { type: 'property' , isCollection: false , isDocument: true , identifier: 'name' , node: '.name' } ) ;
+		expect( parsePathNode( '.n' ) ).to.eql( { type: 'property' , isCollection: false , isDocument: true , identifier: 'n' , node: '.n' } ) ;
+		expect( parsePathNode( '.embedded.data' ) ).to.eql( { type: 'property' , isCollection: false , isDocument: true , identifier: 'embedded.data' , node: '.embedded.data' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( '.' ) ).to.be.an( Error ) ;
@@ -129,9 +129,9 @@ describe( "Path's node parsing" , function() {
 	} ) ;
 	
 	it( "should parse a valid link property node as a link property of the current object" , function() {
-		expect( parsePathNode( '~name' ) ).to.eql( { type: 'linkProperty' , identifier: 'name' , node: '~name' } ) ;
-		expect( parsePathNode( '~n' ) ).to.eql( { type: 'linkProperty' , identifier: 'n' , node: '~n' } ) ;
-		expect( parsePathNode( '~embedded.data' ) ).to.eql( { type: 'linkProperty' , identifier: 'embedded.data' , node: '~embedded.data' } ) ;
+		expect( parsePathNode( '~name' ) ).to.eql( { type: 'linkProperty' , isCollection: false , isDocument: true , identifier: 'name' , node: '~name' } ) ;
+		expect( parsePathNode( '~n' ) ).to.eql( { type: 'linkProperty' , isCollection: false , isDocument: true , identifier: 'n' , node: '~n' } ) ;
+		expect( parsePathNode( '~embedded.data' ) ).to.eql( { type: 'linkProperty' , isCollection: false , isDocument: true , identifier: 'embedded.data' , node: '~embedded.data' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( '~' ) ).to.be.an( Error ) ;
@@ -144,8 +144,8 @@ describe( "Path's node parsing" , function() {
 	} ) ;
 	
 	it( "should parse a valid multi-link property node as a multi-link property of the current object" , function() {
-		expect( parsePathNode( '~~name' ) ).to.eql( { type: 'multiLinkProperty' , identifier: 'name' , node: '~~name' } ) ;
-		expect( parsePathNode( '~~n' ) ).to.eql( { type: 'multiLinkProperty' , identifier: 'n' , node: '~~n' } ) ;
+		expect( parsePathNode( '~~name' ) ).to.eql( { type: 'multiLinkProperty' , isCollection: true , isDocument: false , identifier: 'name' , node: '~~name' } ) ;
+		expect( parsePathNode( '~~n' ) ).to.eql( { type: 'multiLinkProperty' , isCollection: true , isDocument: false , identifier: 'n' , node: '~~n' } ) ;
 		
 		// Invalid entries
 		expect( parsePathNode( '~~' ) ).to.be.an( Error ) ;
@@ -158,8 +158,8 @@ describe( "Path's node parsing" , function() {
 	} ) ;
 	
 	it( "edge cases" , function() {	
-		expect( parsePathNode( 'U-' ) ).to.eql( { type: 'method' , identifier: 'u' , node: 'U-' } ) ;
-		expect( parsePathNode( 'U---' ) ).to.eql( { type: 'method' , identifier: 'u' , node: 'U---' } ) ;
+		expect( parsePathNode( 'U-' ) ).to.eql( { type: 'method' , isCollection: false , isDocument: false , identifier: 'u' , node: 'U-' } ) ;
+		expect( parsePathNode( 'U---' ) ).to.eql( { type: 'method' , isCollection: false , isDocument: false , identifier: 'u' , node: 'U---' } ) ;
 		expect( parsePathNode( '-U' ) ).to.be.an( Error ) ;
 	} ) ;
 } ) ;
@@ -172,10 +172,10 @@ describe( "Path parsing" , function() {
 	
 	it( "should parse a full URL path, returning an array of node" , function() {
 		expect( parse( '/' ) ).to.eql( [] ) ;
-		expect( parse( '/Users' ) ).to.eql( [ { type: 'collection' , identifier: 'users' , node: 'Users' } ] ) ;
+		expect( parse( '/Users' ) ).to.eql( [ { type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ] ) ;
 		expect( parse( '/Users/51d18492541d2e3614ca2a80' ) ).to.eql( [
-			{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
-			{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+			{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ,
+			{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
 		] ) ;
 		
 		// /!\ more test are needed, but no time for that now /!\
@@ -226,8 +226,8 @@ describe( "Path pattern matching" , function() {
 		expect( pathMatch( '/Board/12345678901234567890123a/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "Pattern matching with the '*' wildcard" , function() {
-		expect( pathMatch( '/Board/*/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+	it( "Pattern matching with the '{*}' wildcard" , function() {
+		expect( pathMatch( '/Board/{*}/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -239,7 +239,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/*/Users/*' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Board/{*}/Users/{*}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -251,7 +251,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/*/*/*' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Board/{*}/{*}/{*}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -263,12 +263,12 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/*' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/123456789012345678901234/Users/*' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/{*}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/Users/{*}' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "Pattern matching with the '...' wildcard at the end of the pattern" , function() {
-		expect( pathMatch( '/Board/...' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+	it( "Pattern matching with the '{...}' wildcard at the end of the pattern" , function() {
+		expect( pathMatch( '/Board/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'collection',
@@ -291,7 +291,7 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/Users/...' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Board/123456789012345678901234/Users/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'collection',
@@ -314,7 +314,7 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/...' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Board/123456789012345678901234/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'id',
@@ -337,7 +337,7 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/...' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'id',
@@ -351,11 +351,11 @@ describe( "Path pattern matching" , function() {
 				},
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/...' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "Pattern matching with the '...' wildcard at the begining of the pattern" , function() {
-		expect( pathMatch( '.../Users/[id]' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+	it( "Pattern matching with the '{...}' wildcard at the begining of the pattern" , function() {
+		expect( pathMatch( '{...}/Users/{id}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: null,
@@ -379,7 +379,7 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '.../Users/[id]' , '/Users/123456789012345678901234' ) )
+		expect( pathMatch( '{...}/Users/{id}' , '/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: null,
@@ -399,8 +399,8 @@ describe( "Path pattern matching" , function() {
 			} ) ;
 	} ) ;
 	
-	it( "Pattern matching with the '...' wildcard at the middle of the pattern" , function() {
-		expect( pathMatch( '/Blogs/[id]/.../Comments/[id]' , '/Blogs/123456789012345678901234/Articles/123456789012345678901234/Comments/123456789012345678901234' ) )
+	it( "Pattern matching with the '{...}' wildcard at the middle of the pattern" , function() {
+		expect( pathMatch( '/Blogs/{id}/{...}/Comments/{id}' , '/Blogs/123456789012345678901234/Articles/123456789012345678901234/Comments/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'id',
@@ -428,7 +428,7 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Blogs/[id]/.../Comments/[id]' , '/Blogs/123456789012345678901234/Comments/123456789012345678901234' ) )
+		expect( pathMatch( '/Blogs/{id}/{...}/Comments/{id}' , '/Blogs/123456789012345678901234/Comments/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'id',
@@ -452,8 +452,8 @@ describe( "Path pattern matching" , function() {
 			} ) ;
 	} ) ;
 	
-	it( "Pattern matching with the '[id]' wildcard" , function() {
-		expect( pathMatch( '/Board/[id]' , '/Board/123456789012345678901234' ) ).to.eql( {
+	it( "Pattern matching with the '{id}' wildcard" , function() {
+		expect( pathMatch( '/Board/{id}' , '/Board/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234',
@@ -465,8 +465,8 @@ describe( "Path pattern matching" , function() {
 				node: 'Board'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/[id]' , '/Board/slug' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/[id]/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Board/{id}' , '/Board/slug' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/{id}/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -478,7 +478,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/[id]/Users/[id]' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Board/{id}/Users/{id}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -490,13 +490,13 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/[id]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/[id]/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/{id}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/{id}/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "Pattern matching with the '[slugId]' wildcard" , function() {
-		expect( pathMatch( '/Board/[slugId]' , '/Board/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/[slugId]' , '/Board/some-slug' ) ).to.eql( {
+	it( "Pattern matching with the '{slugId}' wildcard" , function() {
+		expect( pathMatch( '/Board/{slugId}' , '/Board/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/{slugId}' , '/Board/some-slug' ) ).to.eql( {
 			path: {
 				type: 'slugId',
 				value: '/Board/some-slug',
@@ -508,7 +508,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Board'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/[slugId]/Users/123456789012345678901234' , '/Board/my-board/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Board/{slugId}/Users/123456789012345678901234' , '/Board/my-board/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/my-board/Users/123456789012345678901234',
@@ -520,7 +520,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/[slugId]/Users/[slugId]' , '/Board/my-board/Users/bob' ) ).to.eql( {
+		expect( pathMatch( '/Board/{slugId}/Users/{slugId}' , '/Board/my-board/Users/bob' ) ).to.eql( {
 			path: {
 				type: 'slugId',
 				value: '/Board/my-board/Users/bob',
@@ -532,11 +532,11 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/[slugId]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/{slugId}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "Pattern matching with the '[document]' wildcard" , function() {
-		expect( pathMatch( '/Board/[document]' , '/Board/123456789012345678901234' ) ).to.eql( {
+	it( "Pattern matching with the '{document}' wildcard" , function() {
+		expect( pathMatch( '/Board/{document}' , '/Board/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234',
@@ -548,7 +548,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Board'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/[document]' , '/Board/slug' ) ).to.eql( {
+		expect( pathMatch( '/Board/{document}' , '/Board/slug' ) ).to.eql( {
 			path: {
 				type: 'slugId',
 				value: '/Board/slug',
@@ -562,8 +562,8 @@ describe( "Path pattern matching" , function() {
 		} ) ;
 	} ) ;
 	
-	it( "Pattern matching with the '[collection]' wildcard" , function() {
-		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+	it( "Pattern matching with the '{collection}' wildcard" , function() {
+		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -575,7 +575,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/[collection]/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/{collection}/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -587,7 +587,7 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/[collection]/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/{collection}/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -599,8 +599,8 @@ describe( "Path pattern matching" , function() {
 				node: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/[collection]/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/[collection]/Users/[collection]' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/{collection}/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/{collection}/Users/{collection}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 } ) ;
 
@@ -612,31 +612,31 @@ describe( "Full path parsing" , function() {
 	
 	it( "should parse a full URL path, returning an array of node" , function() {
 		expect( parse( '/' ) ).to.eql( { path: [] } ) ;
-		expect( parse( '/Users' ) ).to.eql( { path: [ { type: 'collection' , identifier: 'users' , node: 'Users' } ] } ) ;
+		expect( parse( '/Users' ) ).to.eql( { path: [ { type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ] } ) ;
 		expect( parse( '/Users/51d18492541d2e3614ca2a80' ) ).to.eql( {
 			path: [
-				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
-				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
 			]
 		} ) ;
 		expect( parse( '/Users/51d18492541d2e3614ca2a80#edit' ) ).to.eql( {
 			path: [
-				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
-				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
 			] ,
 			fragment: 'edit'
 		} ) ;
 		expect( parse( '/Users/51d18492541d2e3614ca2a80?filter=name' ) ).to.eql( {
 			path: [
-				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
-				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
 			] ,
 			query: 'filter=name'
 		} ) ;
 		expect( parse( '/Users/51d18492541d2e3614ca2a80?filter=name#edit' ) ).to.eql( {
 			path: [
-				{ type: 'collection' , identifier: 'users' , node: 'Users' } ,
-				{ type: 'id' , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
+				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , node: 'Users' } ,
+				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , node: '51d18492541d2e3614ca2a80' }
 			] ,
 			query: 'filter=name',
 			fragment: 'edit'
@@ -704,7 +704,7 @@ describe( "Full path pattern matching" , function() {
 	} ) ;
 	
 	it( "Complex pattern matching" , function() {
-		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -717,7 +717,7 @@ describe( "Full path pattern matching" , function() {
 			}
 		} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.eql( {
+		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.eql( {
 			path: {
 				type: 'id',
 				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
@@ -731,8 +731,8 @@ describe( "Full path pattern matching" , function() {
 			fragment: 'edit'
 		} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/123456789012345678901234/[collection]/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 		
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
