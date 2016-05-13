@@ -7,13 +7,14 @@
     "test": "test"
   },
   "dependencies": {
-    "string-kit": "^0.4.3"
+    "string-kit": "^0.4.4",
+    "tree-kit": "^0.5.19"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
     "jshint": "^2.9.2",
     "mocha": "^2.4.5",
-    "browserify": "^13.0.0",
+    "browserify": "^13.0.1",
     "testling": "^1.7.1",
     "uglify-js": "^2.6.2"
   },
