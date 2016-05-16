@@ -180,6 +180,10 @@ describe( "Path parsing" , function() {
 		
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
+	
+	it( "a parsed path array, when transformed to a string, should be the original path string" , function() {
+		expect( parse( '/Users/51d18492541d2e3614ca2a80' ).toString() ).to.be( '/Users/51d18492541d2e3614ca2a80' ) ;
+	} ) ;
 } ) ;
 
 
