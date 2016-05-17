@@ -192,7 +192,9 @@ describe( "zzz NEW Path pattern matching" , function() {
 	
 	var pathMatch = restQuery.path.match_new ;
 	
-	it( "Basic pattern matching" , function() {
+	it( "xxx Basic pattern matching" , function() {
+		var matches ;
+		
 		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
 		expect( pathMatch( '/Users' , '/' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/' , '/Users' ) ).not.to.be.ok() ;
@@ -203,14 +205,56 @@ describe( "zzz NEW Path pattern matching" , function() {
 		expect( pathMatch( '/Users/123456789012345678901234' , '/Users' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Users' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 		
-		//console.log( JSON.stringify( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ) ) ;
-		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ).to.eql( {"full":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		matches = pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches ) ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.users.upto.toString() ).to.be( '/Users' ) ;
+		expect( matches.usersDocument.upto.toString() ).to.be( '/Users/123456789012345678901234' ) ;
+		expect( matches.usersDocument.match.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.usersDocument.match[ 0 ].value ).to.be( '123456789012345678901234' ) ;
 		
 		expect( pathMatch( '/Users/12345678901234567890123a' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 		
-		//console.log( JSON.stringify( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ) ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {"full":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"board":{"match":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"}],"onward":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Board","isDocument":false,"isCollection":true,"type":"collection","identifier":"board"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
-		expect( pathMatch( '/Board/12345678901234567890123a/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		matches = pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.boards.upto.toString() ).to.be( '/Boards' ) ;
+		expect( matches.boardsDocument.upto.toString() ).to.be( '/Boards/123456789012345678901234' ) ;
+		expect( matches.users.upto.toString() ).to.be( '/Boards/123456789012345678901234/Users' ) ;
+		expect( matches.usersDocument.upto.toString() ).to.be( '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		expect( matches.users.onward.toString() ).to.be( '/Users/123456789012345678901234' ) ;
+		
+		expect( pathMatch( '/Boards/12345678901234567890123a/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+	} ) ;
+	
+	it( "yyy Pattern matching with the '{id}' wildcard" , function() {
+		var matches ;
+		
+		matches = pathMatch( '/Boards/{id}' , '/Boards/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildId":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.wildId.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.wildId.match.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.wildId.upto.toString() ).to.be( '/Boards/123456789012345678901234' ) ;
+		expect( matches.wildId ).to.eql( matches.boardsDocument ) ;
+		
+		expect( pathMatch( '/Boards/{id}' , '/Boards/slug' ) ).not.to.be.ok() ;
+		
+		matches = pathMatch( '/Boards/{id}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildId":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		
+		
+		matches = pathMatch( '/Boards/{id}/Users/{id}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildId1":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildId2":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.wildId1.upto.toString() ).to.be( '/Boards/123456789012345678901234' ) ;
+		expect( matches.wildId2.upto.toString() ).to.be( '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		expect( matches.wildId1 ).to.eql( matches.boardsDocument ) ;
+		expect( matches.wildId2 ).to.eql( matches.usersDocument ) ;
+		
+		expect( pathMatch( '/Boards/123456789012345678901234/{id}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/{id}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 } ) ;
 
@@ -243,69 +287,69 @@ describe( "Path pattern matching" , function() {
 			}
 		} ) ;
 		expect( pathMatch( '/Users/12345678901234567890123a' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/12345678901234567890123a/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/12345678901234567890123a/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
 	it( "Pattern matching with the '{*}' wildcard" , function() {
-		expect( pathMatch( '/Board/{*}/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{*}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{*}/Users/{*}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{*}/Users/{*}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{*}/{*}/{*}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{*}/{*}/{*}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/{*}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/123456789012345678901234/Users/{*}' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/{*}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/Users/{*}' , '/Boards/123456789012345678901234/Users' ) ).not.to.be.ok() ;
 	} ) ;
 	
 	it( "Pattern matching with the '{...}' wildcard at the end of the pattern" , function() {
-		expect( pathMatch( '/Board/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Boards/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'collection',
-					value: '/Board',
-					value: 'Board',
+					value: '/Boards',
+					value: 'Boards',
 					selectedChild: {
 						type: 'id',
 						value: '123456789012345678901234'
@@ -313,8 +357,8 @@ describe( "Path pattern matching" , function() {
 				},
 				collectionPath: {
 					type: 'collection' ,
-					value: '/Board',
-					value: 'Board'
+					value: '/Boards',
+					value: 'Boards'
 				},
 				subPath: {
 					type: 'id',
@@ -323,11 +367,11 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/Users/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Boards/123456789012345678901234/Users/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'collection',
-					value: '/Board/123456789012345678901234/Users',
+					value: '/Boards/123456789012345678901234/Users',
 					value: 'Users',
 					selectedChild: {
 						type: 'id',
@@ -336,7 +380,7 @@ describe( "Path pattern matching" , function() {
 				},
 				collectionPath: {
 					type: 'collection' ,
-					value: '/Board/123456789012345678901234/Users',
+					value: '/Boards/123456789012345678901234/Users',
 					value: 'Users'
 				},
 				subPath: {
@@ -346,11 +390,11 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Boards/123456789012345678901234/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'id',
-					value: '/Board/123456789012345678901234',
+					value: '/Boards/123456789012345678901234',
 					value: '123456789012345678901234',
 					selectedChild: {
 						type: 'collection',
@@ -359,8 +403,8 @@ describe( "Path pattern matching" , function() {
 				},
 				collectionPath: {
 					type: 'collection' ,
-					value: '/Board',
-					value: 'Board'
+					value: '/Boards',
+					value: 'Boards'
 				},
 				subPath: {
 					type: 'id',
@@ -369,25 +413,25 @@ describe( "Path pattern matching" , function() {
 				}
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: 'id',
-					value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+					value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 					value: '123456789012345678901234'
 				} ,
 				collectionPath: {
 					type: 'collection' ,
-					value: '/Board/123456789012345678901234/Users',
+					value: '/Boards/123456789012345678901234/Users',
 					value: 'Users'
 				},
 			} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Board/123456789012345678901234/Users' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Boards/123456789012345678901234/Users' ) ).not.to.be.ok() ;
 	} ) ;
 	
 	it( "Pattern matching with the '{...}' wildcard at the begining of the pattern" , function() {
-		expect( pathMatch( '{...}/Users/{id}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) )
+		expect( pathMatch( '{...}/Users/{id}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
 			.to.eql( {
 				path: {
 					type: null,
@@ -395,13 +439,13 @@ describe( "Path pattern matching" , function() {
 					value: null,
 					selectedChild: {
 						type: 'collection',
-						value: 'Board'
+						value: 'Boards'
 					}
 				},
 				collectionPath: null ,
 				subPath: {
 					type: 'id',
-					value: '/Board/123456789012345678901234',
+					value: '/Boards/123456789012345678901234',
 					value: '123456789012345678901234'
 				} ,
 				endPath: {
@@ -485,154 +529,154 @@ describe( "Path pattern matching" , function() {
 	} ) ;
 	
 	it( "Pattern matching with the '{id}' wildcard" , function() {
-		expect( pathMatch( '/Board/{id}' , '/Board/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{id}' , '/Boards/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234',
+				value: '/Boards/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board',
-				value: 'Board'
+				value: '/Boards',
+				value: 'Boards'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{id}' , '/Board/slug' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/{id}/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{id}' , '/Boards/slug' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/{id}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{id}/Users/{id}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{id}/Users/{id}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/{id}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/{id}/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/{id}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/{id}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
 	it( "Pattern matching with the '{slugId}' wildcard" , function() {
-		expect( pathMatch( '/Board/{slugId}' , '/Board/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/{slugId}' , '/Board/some-slug' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{slugId}' , '/Boards/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/{slugId}' , '/Boards/some-slug' ) ).to.eql( {
 			path: {
 				type: 'slugId',
-				value: '/Board/some-slug',
+				value: '/Boards/some-slug',
 				value: 'some-slug'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board',
-				value: 'Board'
+				value: '/Boards',
+				value: 'Boards'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{slugId}/Users/123456789012345678901234' , '/Board/my-board/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{slugId}/Users/123456789012345678901234' , '/Boards/my-boards/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/my-board/Users/123456789012345678901234',
+				value: '/Boards/my-boards/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/my-board/Users',
+				value: '/Boards/my-boards/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{slugId}/Users/{slugId}' , '/Board/my-board/Users/bob' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{slugId}/Users/{slugId}' , '/Boards/my-boards/Users/bob' ) ).to.eql( {
 			path: {
 				type: 'slugId',
-				value: '/Board/my-board/Users/bob',
+				value: '/Boards/my-boards/Users/bob',
 				value: 'bob'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/my-board/Users',
+				value: '/Boards/my-boards/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/123456789012345678901234/{slugId}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/{slugId}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
 	it( "Pattern matching with the '{document}' wildcard" , function() {
-		expect( pathMatch( '/Board/{document}' , '/Board/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{document}' , '/Boards/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234',
+				value: '/Boards/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board',
-				value: 'Board'
+				value: '/Boards',
+				value: 'Boards'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{document}' , '/Board/slug' ) ).to.eql( {
+		expect( pathMatch( '/Boards/{document}' , '/Boards/slug' ) ).to.eql( {
 			path: {
 				type: 'slugId',
-				value: '/Board/slug',
+				value: '/Boards/slug',
 				value: 'slug'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board',
-				value: 'Board'
+				value: '/Boards',
+				value: 'Boards'
 			}
 		} ) ;
 	} ) ;
 	
 	it( "Pattern matching with the '{collection}' wildcard" , function() {
-		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/{collection}/123456789012345678901234/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/{collection}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/{collection}/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/{collection}/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
-		expect( pathMatch( '/Board/{collection}/Users/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/{collection}/Users/{collection}' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/{collection}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/{collection}/Users/{collection}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 } ) ;
 
@@ -736,35 +780,35 @@ describe( "Full path pattern matching" , function() {
 	} ) ;
 	
 	it( "Complex pattern matching" , function() {
-		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
+		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			}
 		} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.eql( {
+		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.eql( {
 			path: {
 				type: 'id',
-				value: '/Board/123456789012345678901234/Users/123456789012345678901234',
+				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
 				value: '123456789012345678901234'
 			},
 			collectionPath: {
 				type: 'collection' ,
-				value: '/Board/123456789012345678901234/Users',
+				value: '/Boards/123456789012345678901234/Users',
 				value: 'Users'
 			},
 			fragment: 'edit'
 		} ) ;
 		
-		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Board/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Board/123456789012345678901234/{collection}/123456789012345678901234' , '/Board/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 		
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
