@@ -194,11 +194,60 @@ module.exports = charmap ;
 // Load modules
 var charmap = require( './charmap.js' ) ;
 var camel = require( 'string-kit/lib/camel.js' ) ;
+var treePath = require( 'tree-kit/lib/path.js' ) ;
 
 
 
 var pathModule = {} ;
 module.exports = pathModule ;
+
+
+
+// Callbacks for .map() that returns the .value property
+function mapValue( e ) { return e.value ; }
+//function mapMatchValue( e ) { return e.match.value ; }
+
+
+
+//
+function nodeToString() { return this.value ; }	// jshint ignore:line
+function matchToString() { return this.match.toString() ; }	// jshint ignore:line
+
+
+
+// arrayToString( [sliceFrom] , [sliceTo] )
+function arrayToString()
+{
+	if ( ! arguments.length ) { return '/' + this.map( mapValue ).join( '/' ) ; } // jshint ignore:line
+	else { return '/' +  Array.prototype.slice.apply( this , arguments ).map( mapValue ).join( '/' ) ; } // jshint ignore:line
+}
+
+
+
+function arraySlice()
+{
+	return createPathArray( Array.prototype.slice.apply( this , arguments ) ) ; // jshint ignore:line
+}
+
+
+
+function arrayGetLastItem() { return this[ this.length - 1 ] ; } ; // jshint ignore:line
+
+
+
+function createPathArray( array )
+{
+	array = array || [] ;
+	
+	// Replace the .toString() method, make it non-enumerable
+	Object.defineProperties( array , {
+		toString: { value: arrayToString } ,
+		slice: { value: arraySlice } ,
+		last: { get: arrayGetLastItem }
+	} ) ;
+	
+	return array ;
+}
 
 
 
@@ -209,10 +258,11 @@ pathModule.parse = function parse( path , isPattern )
 	if ( Array.isArray( path ) ) { return path ; }	// Already parsed
 	else if ( typeof path !== 'string' ) { throw new Error( "[restQuery] .parse() 'path' should be a string" ) ; }
 	
+	parsed = createPathArray() ;
+	path = path.replace( /\/+/ , '/' ) ;	// remove extra slashes
+	splitted = path.split( '/' ) ;
+	
 	try {
-		parsed = [] ;
-		splitted = path.split( '/' ) ;
-		
 		for ( i = 0 , j = 0 , iMax = splitted.length ; i < iMax ; i ++ )
 		{
 			if ( splitted[ i ] === '' ) { continue ; }
@@ -249,41 +299,74 @@ pathModule.parse = function parse( path , isPattern )
 
 pathModule.parseNode = function parseNode( str , isPattern )
 {
-	var parsed = { node: str } , match ;
+	var match , splitted ;
 	
 	if ( str.length < 1 ) { throw new Error( '[restQuery] parseNode() : argument #0 length should be >= 1' ) ; }
 	if ( str.length > 72 ) { throw new Error( '[restQuery] parseNode() : argument #0 length should be <= 72' ) ; }
 	
+	var parsed = { value: str , isDocument: false , isCollection: false } ;
+	
+	Object.defineProperties( parsed , {
+		toString: { value: nodeToString }
+	} ) ;
+	
 	// Firstly, check wildcard if isPattern
 	if ( isPattern )
 	{
-		switch ( str )
+		if ( str[ 0 ] === '{' && str[ str.length -1 ] === '}' )
 		{
-			case '*' :
-				parsed.type = 'wildcard' ;
-				parsed.wildcard = 'any' ;
+			splitted = str.slice( 1 , -1 ).split( ':' ) ;
+			if ( splitted[ 1 ] ) { parsed.matchName = splitted[ 1 ] ; }
+			str = splitted[ 0 ] ;
+			
+			if ( str[ 0 ] === '$' )
+			{
+				parsed.type = 'context' ;
+				parsed.contextPath = str = str.slice( 1 ) ;
 				return parsed ;
-			case '...' :
-				parsed.type = 'wildcard' ;
-				parsed.wildcard = 'anySubPath' ;
-				return parsed ;
-			case '[id]' :
-				parsed.type = 'wildcard' ;
-				parsed.wildcard = 'anyId' ;
-				return parsed ;
-			case '[slugId]' :
-				parsed.type = 'wildcard' ;
-				parsed.wildcard = 'anySlugId' ;
-				return parsed ;
-			case '[document]' :
-				parsed.type = 'wildcard' ;
-				parsed.wildcard = 'anyDocument' ;
-				return parsed ;
-			case '[collection]' :
-				parsed.type = 'wildcard' ;
-				parsed.wildcard = 'anyCollection' ;
-				return parsed ;
+			}
+			
+			switch ( str )
+			{
+				case '*' :
+					parsed.type = 'wildcard' ;
+					parsed.wildcard = 'any' ;
+					break ;
+				case '...' :
+					parsed.type = 'wildcard' ;
+					parsed.wildcard = 'anySubPath' ;
+					break ;
+				case 'id' :
+					parsed.type = 'wildcard' ;
+					parsed.wildcard = 'anyId' ;
+					parsed.isDocument = true ;
+					break ;
+				case 'slugId' :
+					parsed.type = 'wildcard' ;
+					parsed.wildcard = 'anySlugId' ;
+					parsed.isDocument = true ;
+					break ;
+				case 'document' :
+					parsed.type = 'wildcard' ;
+					parsed.wildcard = 'anyDocument' ;
+					parsed.isDocument = true ;
+					break ;
+				case 'collection' :
+					parsed.type = 'wildcard' ;
+					parsed.wildcard = 'anyCollection' ;
+					parsed.isCollection = true ;
+					break ;
+				default :
+					throw new Error( '[restQuery] parseNode() -- bad node special type: ' + str ) ;
+			}
+			
+			return parsed ;
 		}
+		
+		
+		splitted = str.split( ':' ) ;
+		if ( splitted[ 1 ] ) { parsed.matchName = splitted[ 1 ] ; }
+		str = splitted[ 0 ] ;
 	}
 	
 	// Then, check if it is an object's collection or method: it starts with an uppercase ascii letter
@@ -293,6 +376,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 		{
 			parsed.type = 'collection' ;
 			parsed.identifier = str[ 0 ].toLowerCase() + str.slice( 1 ) ;
+			parsed.isCollection = true ;
 			return parsed ;
 		}
 		
@@ -302,6 +386,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 			{
 				parsed.type = 'collection' ;
 				parsed.identifier = str[ 0 ].toLowerCase() + str.slice( 1 ) ;
+				parsed.isCollection = true ;
 				return parsed ;
 			}
 			
@@ -319,6 +404,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 		{
 			parsed.type = 'collection' ;
 			parsed.identifier = str[ 0 ].toLowerCase() + str.slice( 1 ) ;
+			parsed.isCollection = true ;
 			return parsed ;
 		}
 		
@@ -331,6 +417,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 	{
 		parsed.type = 'id' ;
 		parsed.identifier = str ;
+		parsed.isDocument = true ;
 		return parsed ;
 	}
 	
@@ -340,6 +427,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 		if ( ! str.match( charmap.propertyRegExp ) ) { throw new Error( '[restQuery] parseNode() : argument #0 does not validate' ) ; }
 		parsed.type = 'property' ;
 		parsed.identifier = str.slice( 1 ) ;
+		parsed.isDocument = true ;	// /!\ document or not?
 		return parsed ;
 	}
 	
@@ -351,6 +439,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 			if ( ! str.match( charmap.multiLinkPropertyRegExp ) ) { throw new Error( '[restQuery] parseNode() : argument #0 does not validate' ) ; }
 			parsed.type = 'multiLinkProperty' ;
 			parsed.identifier = str.slice( 2 ) ;
+			parsed.isCollection = true ;
 			return parsed ;
 		}
 		else
@@ -358,6 +447,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 			if ( ! str.match( charmap.linkPropertyRegExp ) ) { throw new Error( '[restQuery] parseNode() : argument #0 does not validate' ) ; }
 			parsed.type = 'linkProperty' ;
 			parsed.identifier = str.slice( 1 ) ;
+			parsed.isDocument = true ;
 			return parsed ;
 		}
 	}
@@ -371,11 +461,13 @@ pathModule.parseNode = function parseNode( str , isPattern )
 			parsed.type = 'range' ;
 			parsed.min = parseInt( match[ 1 ] , 10 ) ;
 			parsed.max = parseInt( match[ 2 ] , 10 ) ;
+			parsed.isCollection = true ;
 			return parsed ;
 		}
 		
 		parsed.type = 'offset' ;
 		parsed.identifier = parseInt( str , 10 ) ;
+		parsed.isDocument = true ;
 		return parsed ;
 	}
 	
@@ -385,6 +477,7 @@ pathModule.parseNode = function parseNode( str , isPattern )
 	{
 		parsed.type = 'slugId' ;
 		parsed.identifier = str ;
+		parsed.isDocument = true ;
 		return parsed ;
 	}
 	
@@ -394,21 +487,87 @@ pathModule.parseNode = function parseNode( str , isPattern )
 
 
 
+function createMatchElementFromNode( node )
+{
+	var key , match = {} ;
+	
+	for ( key in node ) { match[ key ] = node[ key ] ; }
+	
+	Object.defineProperties( match , {
+		toString: { value: nodeToString }
+	} ) ;
+	
+	return match ;
+}
+
+
+
+function matchName( matches , nameOccurencies , name )
+{
+	// First, fix the name
+	if ( ! nameOccurencies[ name ] )
+	{
+		nameOccurencies[ name ] = 1 ;
+	}
+	else if ( nameOccurencies[ name ] === 1 )
+	{
+		// We have to rename the first one by appending '1' to its name
+		matches[ name + '1' ] = matches[ name ] ;
+		delete matches[ name ] ;
+		nameOccurencies[ name ] = 2 ;
+		name += '2' ;
+	}
+	else
+	{
+		name += ++ nameOccurencies[ name ] ;
+	}
+	
+	return name ;
+}
+
+
+
+function copyMatch( matches , match , nameOccurencies , name )
+{
+	name = matchName( matches , nameOccurencies , name ) ;
+	matches[ name ] = match ;
+	return match ;
+}
+
+
+
+function addMatch( matches , matchElements , min , max , nameOccurencies , name )
+{
+	name = matchName( matches , nameOccurencies , name ) ;
+	
+	var match = Object.create( Object.prototype , {
+		toString: { value: matchToString }
+	} ) ;
+	
+	match.match = matchElements.slice( min , max + 1 ) ;
+	match.before = matchElements.slice( 0 , min ) ;
+	match.after = matchElements.slice( max + 1 ) ;
+	match.upto = matchElements.slice( 0 , max + 1 ) ;
+	match.onward = matchElements.slice( min ) ;
+	
+	matches[ name ] = match ;
+	
+	return match ;
+}
+
+
+
 /*
 	Wildcards:
-		*				match any path node
-		...				match any children node?
-		[id]			match any ID node
-		[slugId]		match any SlugId node
-		[document]		match any ID and SlugId node
-		[collection]	match any collection node
+		{*}				match any path node
+		{...}			match any children node?
+		{id}			match any ID node
+		{slugId}		match any SlugId node
+		{document}		match any ID and SlugId node
+		{collection}	match any collection node
 */
-pathModule.match = function match( pathPattern , path )
+pathModule.match = function match( pathPattern , path , context )
 {
-	var i , iMax , j , jLast = 0 , jLastCollection = 0 ,
-		anySubPathCount = 0 , anySubPathMatchCount , jAfterSubPath ,
-		matches = {} ;
-	
 	try {
 		if ( ! Array.isArray( pathPattern ) ) { pathPattern = pathModule.parse( pathPattern , true ) ; }
 		if ( ! Array.isArray( path ) ) { path = pathModule.parse( path ) ; }
@@ -417,12 +576,47 @@ pathModule.match = function match( pathPattern , path )
 		return false ;
 	}
 	
+	var i , iMax , j , lastCollectionMatchName = null ,
+		contextifiedPathPattern ,
+		anySubPathCount = 0 , anySubPathMatchCount ,
+		refMatch = null ,
+		matches = { full: path } ,
+		matchElements = createPathArray() ,
+		nameOccurencies = {} ;
+	
 	// If the parsed pattern is empty...
 	if ( pathPattern.length === 0 ) { return path.length === 0 ? matches : false ; }
 	
+	if ( context )
+	{
+		contextifiedPathPattern = createPathArray() ;
+		
+		for ( i = 0 , iMax = pathPattern.length ; i < iMax ; i ++ )
+		{
+			if ( pathPattern[ i ].contextPath )
+			{
+				contextifiedPathPattern = contextifiedPathPattern.concat(
+					pathModule.parse( treePath.get( context , pathPattern[ i ].contextPath ) ) 
+				) ;
+			}
+			else
+			{
+				contextifiedPathPattern.push( pathPattern[ i ] ) ;
+			}
+		}
+		
+		pathPattern = contextifiedPathPattern ;
+	}
+	
 	for ( i = 0 , iMax = pathPattern.length ; i < iMax ; i ++ )
 	{
+		if ( pathPattern[ i ].contextPath ) { throw new Error( "[restQuery] .match() this pattern needs a context." ) ; }
 		if ( pathPattern[ i ].wildcard === 'anySubPath' ) { anySubPathCount ++ ; }
+	}
+	
+	for ( i = 0 , iMax = path.length ; i < iMax ; i ++ )
+	{
+		matchElements[ i ] = createMatchElementFromNode( path[ i ] ) ;
 	}
 	
 	if ( anySubPathCount )
@@ -448,91 +642,46 @@ pathModule.match = function match( pathPattern , path )
 	// j	iterate the path
 	for ( i = 0 , j = 0 , iMax = pathPattern.length ; i < iMax ; i ++ , j ++ )
 	{
-		if ( path[ j ] )
-		{
-			jLast = j ;
-			if ( path[ j ].type === 'collection' && pathPattern[ i ].wildcard !== 'anySubPath' ) { jLastCollection = j ; }
-		}
+		refMatch = null ;
 		
 		switch ( pathPattern[ i ].wildcard )
 		{
 			case 'any' :
 				// Always match
+				lastCollectionMatchName = null ;
+				addMatch( matches , matchElements , j , j , nameOccurencies , pathPattern[ i ].matchName || 'wild' ) ;
 				break ;
 				
 			case 'anySubPath' :
 				// Always match multiple path node
-				
-				
-				if ( j > 0 )
-				{
-					matches.path = {
-						type: path[ j - 1 ].type ,
-						value: '/' + path.slice( 0 , j ).map( mapNode ).join( '/' ) ,
-						node: path[ j - 1 ].node
-					} ;
-					
-					matches.collectionPath = {
-						type: path[ jLastCollection ].type ,
-						value: '/' + path.slice( 0 , jLastCollection + 1 ).map( mapNode ).join( '/' ) ,
-						node: path[ jLastCollection ].node
-					} ;
-				}
-				else
-				{
-					matches.path = {
-						type: null ,
-						value: '/' ,
-						node: null
-					} ;
-					
-					matches.collectionPath = null ;
-				}
-				
-				if ( j < path.length )
-				{
-					matches.path.selectedChild = {
-						type: path[ j ].type ,
-						node: path[ j ].node
-					} ;
-				}
-				
-				if ( anySubPathMatchCount )
-				{
-					//console.log( ">>>" , pathPattern.length , path.length , j , anySubPathMatchCount , j + anySubPathMatchCount - 1 ) ;
-					matches.subPath = {
-						type: path[ j + anySubPathMatchCount - 1 ].type ,
-						value: '/' + path.slice( j , j + anySubPathMatchCount ).map( mapNode ).join( '/' ) ,
-						node: path[ j + anySubPathMatchCount - 1 ].node
-					} ;
-					
-				}
-				
-				//console.log( path.length , j , anySubPathMatchCount ) ;
-				jAfterSubPath = j + anySubPathMatchCount ;
+				lastCollectionMatchName = null ;
+				addMatch( matches , matchElements , j , j + anySubPathMatchCount - 1 , nameOccurencies , pathPattern[ i ].matchName || 'subPath' ) ;
 				j += anySubPathMatchCount - 1 ; // the loop already has its own j++
-				
-				//console.log( j , jAfterSubPath ) ;
 				break ;
 				
 			case 'anyId' :
 				// Match any id
 				if ( path[ j ].type !== 'id' ) { return false ; }
+				refMatch = addMatch( matches , matchElements , j , j , nameOccurencies , pathPattern[ i ].matchName || 'wildId' ) ;
 				break ;
 				
 			case 'anySlugId' :
 				// Match any slugId
 				if ( path[ j ].type !== 'slugId' ) { return false ; }
+				refMatch = addMatch( matches , matchElements , j , j , nameOccurencies , pathPattern[ i ].matchName || 'wildSlugId' ) ;
 				break ;
 				
 			case 'anyDocument' :
 				// Match any id
 				if ( path[ j ].type !== 'id' && path[ j ].type !== 'slugId' ) { return false ; }
+				refMatch = addMatch( matches , matchElements , j , j , nameOccurencies , pathPattern[ i ].matchName || 'wildDocument' ) ;
 				break ;
 				
 			case 'anyCollection' :
 				// Match any collection
 				if ( path[ j ].type !== 'collection' ) { return false ; }
+				lastCollectionMatchName = pathPattern[ i ].matchName || 'wildCollection' ;
+				refMatch = addMatch( matches , matchElements , j , j , nameOccurencies , lastCollectionMatchName ) ;
 				break ;
 				
 			default :
@@ -540,44 +689,27 @@ pathModule.match = function match( pathPattern , path )
 				{
 					return false ;
 				}
+				
+				if ( pathPattern[ i ].isCollection )
+				{
+					lastCollectionMatchName = pathPattern[ i ].matchName || pathPattern[ i ].identifier ;
+					addMatch( matches , matchElements , j , j , nameOccurencies , lastCollectionMatchName ) ;
+				}
 		}
-	}
-	
-	
-	if ( ! ( 'path' in matches ) )
-	{
-		matches.path = {
-			type: path[ jLast ].type ,
-			value: '/' + path.map( mapNode ).join( '/' ) ,
-			node: path[ jLast ].node
-		} ;
-	}
-	
-	if ( jAfterSubPath !== undefined && jAfterSubPath < path.length )
-	{
-		matches.endPath = {
-			type: path[ jLast ].type ,
-			value: '/' + path.slice( jAfterSubPath ).map( mapNode ).join( '/' ) ,
-			node: path[ jLast ].node
-		} ;
-	}
-	
-	if ( ! ( 'collectionPath' in matches ) )
-	{
-		matches.collectionPath = {
-			type: path[ jLastCollection ].type ,
-			value: '/' + path.slice( 0 , jLastCollection + 1 ).map( mapNode ).join( '/' ) ,
-			node: path[ jLastCollection ].node
-		} ;
+		
+		if ( pathPattern[ i ].isDocument && lastCollectionMatchName && path[ j ] )
+		{
+			// If refMatch is already set, avoid recreating a match from scratch, reference the existant match
+			if ( refMatch ) { copyMatch( matches , refMatch , nameOccurencies , lastCollectionMatchName + 'Document' ) ; }
+			else { addMatch( matches , matchElements , j , j , nameOccurencies , lastCollectionMatchName + 'Document' ) ; }
+		}
+		
+		// Finally, nullify any collection identifier for the next round trip, if it has not been set in this one...
+		if ( ! pathPattern[ i ].isCollection ) { lastCollectionMatchName = null ; }
 	}
 	
 	return matches ;
 } ;
-
-
-
-// a callback for .map() that returns the .node property
-function mapNode( e ) { return e.node ; }
 
 
 
@@ -616,7 +748,7 @@ pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath )
 		return false ;
 	}
 	
-	// /!\ Query string is used for matching ATM /!\
+	// /!\ Query string is not used for matching ATM /!\
 	
 	if ( typeof fullPathPattern.fragment === 'string' && fullPathPattern.fragment !== ( fullPath.fragment || '' ) ) { return false ; }
 	
@@ -631,7 +763,7 @@ pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath )
 
 
 
-},{"./charmap.js":2,"string-kit/lib/camel.js":4}],4:[function(require,module,exports){
+},{"./charmap.js":2,"string-kit/lib/camel.js":4,"tree-kit/lib/path.js":5}],4:[function(require,module,exports){
 /*
 	The Cedric's Swiss Knife (CSK) - CSK string toolbox
 
@@ -693,6 +825,275 @@ camel.camelCaseToDashed = function camelCaseToDashed( str )
 		return '-' + letter.toLowerCase() ;
 	} ) ;
 } ;
+
+
+
+},{}],5:[function(require,module,exports){
+/*
+	The Cedric's Swiss Knife (CSK) - CSK object tree toolbox
+
+	Copyright (c) 2014, 2015 Cédric Ronvel 
+	
+	The MIT License (MIT)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+
+"use strict" ;
+
+
+
+var treePath = {} ;
+module.exports = treePath ;
+
+
+
+treePath.op = function op( type , object , path , value )
+{
+	var i , parts , last , pointer , key , isArray = false , pathArrayMode = false , isGenericSet ;
+	
+	if ( typeof path === 'string' )
+	{
+		// Split the path into parts
+		parts = path.match( /([.#\[\]]|[^.#\[\]]+)/g ) ;
+		//parts = path.match( /([.#](?!$)|[^.#]+)/g ) ;
+	}
+	else if ( Array.isArray( path ) )
+	{
+		parts = path ;
+		pathArrayMode = true ;
+	}
+	else
+	{
+		throw new TypeError( '[tree.path] .' + type + '(): the path argument should be a string or an array' ) ;
+	}
+	
+	switch ( type )
+	{
+		case 'get' :
+		case 'delete' :
+			isGenericSet = false ;
+			break ;
+		case 'set' :
+		case 'define' :
+		case 'inc' :
+		case 'dec' :
+		case 'append' :
+		case 'prepend' :
+		case 'autoPush' :
+			isGenericSet = true ;
+			break ;
+		default :
+			throw new TypeError( "[tree.path] .op(): wrong type of operation '" + type + "'" ) ;
+	}
+	
+	
+	//console.log( parts ) ;
+	// The pointer start at the object's root
+	pointer = object ;
+	
+	last = parts.length - 1 ;
+	
+	for ( i = 0 ; i <= last ; i ++ )
+	{
+		if ( pathArrayMode )
+		{
+			if ( key === undefined )
+			{
+				key = parts[ i ] ;
+				continue ;
+			}
+			
+			if ( ! pointer[ key ] || ( typeof pointer[ key ] !== 'object' && typeof pointer[ key ] !== 'function' ) )
+			{
+				if ( ! isGenericSet ) { return undefined ; }
+				pointer[ key ] = {} ;
+			}
+			
+			pointer = pointer[ key ] ;
+			key = parts[ i ] ;
+			
+			continue ;
+		}
+		else if ( parts[ i ] === '.' )
+		{
+			isArray = false ;
+			
+			if ( key === undefined ) { continue ; }
+			
+			if ( ! pointer[ key ] || ( typeof pointer[ key ] !== 'object' && typeof pointer[ key ] !== 'function' ) )
+			{
+				if ( ! isGenericSet ) { return undefined ; }
+				pointer[ key ] = {} ;
+			}
+			
+			pointer = pointer[ key ] ;
+			
+			continue ;
+		}
+		else if ( parts[ i ] === '#' || parts[ i ] === '[' )
+		{
+			isArray = true ;
+			
+			if ( key === undefined )
+			{
+				// The root element cannot be altered, we are in trouble if an array is expected but we have only a regular object.
+				if ( ! Array.isArray( pointer ) ) { return undefined ; }
+				continue ;
+			}
+			
+			if ( ! pointer[ key ] || ! Array.isArray( pointer[ key ] ) )
+			{
+				if ( ! isGenericSet ) { return undefined ; }
+				pointer[ key ] = [] ;
+			}
+			
+			pointer = pointer[ key ] ;
+			
+			continue ;
+		}
+		else if ( parts[ i ] === ']' )
+		{
+			// Closing bracket: do nothing
+			continue ;
+		}
+		
+		if ( ! isArray ) { key = parts[ i ] ; continue ; }
+		
+		switch ( parts[ i ] )
+		{
+			case 'length' :
+				key = parts[ i ] ;
+				break ;
+			
+			// Pseudo-key
+			case 'first' :
+				key = 0 ;
+				break ;
+			case 'last' :
+				key = pointer.length - 1 ;
+				if ( key < 0 ) { key = 0 ; }
+				break ;
+			case 'next' :
+				if ( ! isGenericSet ) { return undefined ; }
+				key = pointer.length ;
+				break ;
+			case 'insert' :
+				if ( ! isGenericSet ) { return undefined ; }
+				pointer.unshift( undefined ) ;
+				key = 0 ;
+				break ;
+			
+			// default = number
+			default:
+				// Convert the string key to a numerical index
+				key = parseInt( parts[ i ] , 10 ) ;
+		}
+	}
+	
+	switch ( type )
+	{
+		case 'get' :
+			return pointer[ key ] ;
+		case 'delete' :
+			if ( isArray && typeof key === 'number' ) { pointer.splice( key , 1 ) ; }
+			else { delete pointer[ key ] ; }
+			return ;
+		case 'set' :
+			pointer[ key ] = value ;
+			return pointer[ key ] ;
+		case 'define' :
+			// define: set only if it doesn't exist
+			if ( ! ( key in pointer ) ) { pointer[ key ] = value ; }
+			return pointer[ key ] ;
+		case 'inc' :
+			if ( typeof pointer[ key ] === 'number' ) { pointer[ key ] ++ ; }
+			else if ( ! pointer[ key ] || typeof pointer[ key ] !== 'object' ) { pointer[ key ] = 1 ; }
+			return pointer[ key ] ;
+		case 'dec' :
+			if ( typeof pointer[ key ] === 'number' ) { pointer[ key ] -- ; }
+			else if ( ! pointer[ key ] || typeof pointer[ key ] !== 'object' ) { pointer[ key ] = -1 ; }
+			return pointer[ key ] ;
+		case 'append' :
+			if ( ! pointer[ key ] ) { pointer[ key ] = [ value ] ; }
+			else if ( Array.isArray( pointer[ key ] ) ) { pointer[ key ].push( value ) ; }
+			//else ? do nothing???
+			return pointer[ key ] ;
+		case 'prepend' :
+			if ( ! pointer[ key ] ) { pointer[ key ] = [ value ] ; }
+			else if ( Array.isArray( pointer[ key ] ) ) { pointer[ key ].unshift( value ) ; }
+			//else ? do nothing???
+			return pointer[ key ] ;
+		case 'autoPush' :
+			if ( pointer[ key ] === undefined ) { pointer[ key ] = value ; }
+			else if ( Array.isArray( pointer[ key ] ) ) { pointer[ key ].push( value ) ; }
+			else { pointer[ key ] = [ pointer[ key ] , value ] ; }
+			return pointer[ key ] ;
+	}
+} ;
+
+
+
+// get, set and delete use the same op() function
+treePath.get = treePath.op.bind( undefined , 'get' ) ;
+treePath.delete = treePath.op.bind( undefined , 'delete' ) ;
+treePath.set = treePath.op.bind( undefined , 'set' ) ;
+treePath.define = treePath.op.bind( undefined , 'define' ) ;
+treePath.inc = treePath.op.bind( undefined , 'inc' ) ;
+treePath.dec = treePath.op.bind( undefined , 'dec' ) ;
+treePath.append = treePath.op.bind( undefined , 'append' ) ;
+treePath.prepend = treePath.op.bind( undefined , 'prepend' ) ;
+treePath.autoPush = treePath.op.bind( undefined , 'autoPush' ) ;
+
+
+
+// Prototype used for object creation, so they can be created with Object.create( tree.path.prototype )
+treePath.prototype = {
+	get: function( path ) { return treePath.get( this , path ) ; } ,
+	delete: function( path ) { return treePath.delete( this , path ) ; } ,
+	set: function( path , value ) { return treePath.set( this , path , value ) ; } ,
+	define: function( path , value ) { return treePath.define( this , path , value ) ; } ,
+	inc: function( path , value ) { return treePath.inc( this , path , value ) ; } ,
+	dec: function( path , value ) { return treePath.dec( this , path , value ) ; } ,
+	append: function( path , value ) { return treePath.append( this , path , value ) ; } ,
+	prepend: function( path , value ) { return treePath.prepend( this , path , value ) ; } ,
+	autoPush: function( path , value ) { return treePath.autoPush( this , path , value ) ; }
+} ;
+
+
+
+// Upgrade an object so it can support get, set and delete at its root
+treePath.upgrade = function upgrade( object )
+{
+	Object.defineProperties( object , {
+		get: { value: treePath.op.bind( undefined , 'get' , object ) } ,
+		delete: { value: treePath.op.bind( undefined , 'delete' , object ) } ,
+		set: { value: treePath.op.bind( undefined , 'set' , object ) } ,
+		define: { value: treePath.op.bind( undefined , 'define' , object ) } ,
+		inc: { value: treePath.op.bind( undefined , 'inc' , object ) } ,
+		dec: { value: treePath.op.bind( undefined , 'dec' , object ) } ,
+		append: { value: treePath.op.bind( undefined , 'append' , object ) } ,
+		prepend: { value: treePath.op.bind( undefined , 'prepend' , object ) } ,
+		autoPush: { value: treePath.op.bind( undefined , 'autoPush' , object ) }
+	} ) ;
+} ;
+
 
 
 

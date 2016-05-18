@@ -1,6 +1,6 @@
 {
   "name": "rest-query-shared",
-  "version": "0.28.5",
+  "version": "0.32.0",
   "description": "Perform REST queries directly on your database! Shared bits between Node.js and browser.",
   "main": "lib/restQueryShared.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "string-kit": "^0.4.4",
-    "tree-kit": "^0.5.19"
+    "tree-kit": "^0.5.20"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
