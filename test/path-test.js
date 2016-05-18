@@ -188,11 +188,11 @@ describe( "Path parsing" , function() {
 
 
 
-describe( "zzz NEW Path pattern matching" , function() {
+describe( "Path pattern matching" , function() {
 	
-	var pathMatch = restQuery.path.match_new ;
+	var pathMatch = restQuery.path.match ;
 	
-	it( "xxx Basic pattern matching" , function() {
+	it( "Basic pattern matching" , function() {
 		var matches ;
 		
 		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
@@ -343,7 +343,59 @@ describe( "zzz NEW Path pattern matching" , function() {
 		expect( pathMatch( '/{slugId}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 	} ) ;
 	
-	it( "yyy Pattern matching with the '{...}' wildcard at the end of the pattern" , function() {
+	it( "Pattern matching with the '{document}' wildcard" , function() {
+		var matches ;
+		
+		matches = pathMatch( '/Boards/{document}' , '/Boards/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.wildDocument.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.wildDocument.match.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.wildDocument.upto.toString() ).to.be( '/Boards/123456789012345678901234' ) ;
+		
+		matches = pathMatch( '/Boards/{document}' , '/Boards/slug' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"wildDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"boardsDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]}} ) ;
+		expect( matches.wildDocument.toString() ).to.be( '/slug' ) ;
+		expect( matches.wildDocument.match.toString() ).to.be( '/slug' ) ;
+		expect( matches.wildDocument.upto.toString() ).to.be( '/Boards/slug' ) ;
+		
+		matches = pathMatch( '/Boards/{document}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		
+		matches = pathMatch( '/Boards/{document}/Users/slug' , '/Boards/slug/Users/slug' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"wildDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"boardsDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"after":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"usersDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]}} ) ;
+		
+		
+		matches = pathMatch( '/Boards/{document}/Users/{document}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildDocument1":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildDocument2":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.wildDocument1.upto.toString() ).to.be( '/Boards/123456789012345678901234' ) ;
+		expect( matches.wildDocument2.upto.toString() ).to.be( '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		
+		matches = pathMatch( '/Boards/{document}/Users/{document}' , '/Boards/slug/Users/slug' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"boardsDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"after":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"wildDocument1":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"wildDocument2":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]},"usersDocument":{"match":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}],"onward":[{"value":"slug","isDocument":true,"isCollection":false,"type":"slugId","identifier":"slug"}]}} ) ;
+		expect( matches.wildDocument1.upto.toString() ).to.be( '/Boards/slug' ) ;
+		expect( matches.wildDocument2.upto.toString() ).to.be( '/Boards/slug/Users/slug' ) ;
+		
+		expect( pathMatch( '/Boards/123456789012345678901234/{document}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( pathMatch( '/{document}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+	} ) ;
+	
+	it( "Pattern matching with the '{collection}' wildcard" , function() {
+		var matches ;
+		
+		expect( pathMatch( '/Boards/{collection}' , '/Boards/123456789012345678901234' ) ).not.to.be.ok() ;
+		
+		matches = pathMatch( '/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"wildCollection":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollectionDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+	} ) ;
+	
+	it( "Pattern matching with the '{...}' wildcard at the end of the pattern" , function() {
 		var matches ;
 		
 		matches = pathMatch( '/Boards/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
@@ -354,432 +406,39 @@ describe( "zzz NEW Path pattern matching" , function() {
 		expect( matches.boards.toString() ).to.be( '/Boards' ) ;
 		expect( matches.subPath.match[0].toString() ).to.be( '123456789012345678901234' ) ;
 	} ) ;
-} ) ;
-
-
-	
-describe( "Path pattern matching" , function() {
-	
-	var pathMatch = restQuery.path.match ;
-	
-	it( "Basic pattern matching" , function() {
-		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
-		expect( pathMatch( '/Users' , '/' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/' , '/Users' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users' , '/Users' ) ).to.be.ok() ;
-		expect( pathMatch( '/Users/' , '/Users' ) ).to.be.ok() ;
-		expect( pathMatch( '/Users' , '/Users/' ) ).to.be.ok() ;
-		expect( pathMatch( '/Users' , '/Group' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users/123456789012345678901234' , '/Users' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Users/123456789012345678901234' ,
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Users' ,
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Users/12345678901234567890123a' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/12345678901234567890123a/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-	} ) ;
-	
-	it( "Pattern matching with the '{*}' wildcard" , function() {
-		expect( pathMatch( '/Boards/{*}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{*}/Users/{*}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{*}/{*}/{*}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/123456789012345678901234/{*}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Boards/123456789012345678901234/Users/{*}' , '/Boards/123456789012345678901234/Users' ) ).not.to.be.ok() ;
-	} ) ;
-	
-	it( "Pattern matching with the '{...}' wildcard at the end of the pattern" , function() {
-		expect( pathMatch( '/Boards/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: 'collection',
-					value: '/Boards',
-					value: 'Boards',
-					selectedChild: {
-						type: 'id',
-						value: '123456789012345678901234'
-					}
-				},
-				collectionPath: {
-					type: 'collection' ,
-					value: '/Boards',
-					value: 'Boards'
-				},
-				subPath: {
-					type: 'id',
-					value: '/123456789012345678901234/Users/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
-		
-		expect( pathMatch( '/Boards/123456789012345678901234/Users/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: 'collection',
-					value: '/Boards/123456789012345678901234/Users',
-					value: 'Users',
-					selectedChild: {
-						type: 'id',
-						value: '123456789012345678901234'
-					}
-				},
-				collectionPath: {
-					type: 'collection' ,
-					value: '/Boards/123456789012345678901234/Users',
-					value: 'Users'
-				},
-				subPath: {
-					type: 'id',
-					value: '/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
-		
-		expect( pathMatch( '/Boards/123456789012345678901234/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: 'id',
-					value: '/Boards/123456789012345678901234',
-					value: '123456789012345678901234',
-					selectedChild: {
-						type: 'collection',
-						value: 'Users'
-					}
-				},
-				collectionPath: {
-					type: 'collection' ,
-					value: '/Boards',
-					value: 'Boards'
-				},
-				subPath: {
-					type: 'id',
-					value: '/Users/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
-		
-		expect( pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: 'id',
-					value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-					value: '123456789012345678901234'
-				} ,
-				collectionPath: {
-					type: 'collection' ,
-					value: '/Boards/123456789012345678901234/Users',
-					value: 'Users'
-				},
-			} ) ;
-		
-		expect( pathMatch( '/Boards/123456789012345678901234/Users/123456789012345678901234/{...}' , '/Boards/123456789012345678901234/Users' ) ).not.to.be.ok() ;
-	} ) ;
 	
 	it( "Pattern matching with the '{...}' wildcard at the begining of the pattern" , function() {
-		expect( pathMatch( '{...}/Users/{id}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: null,
-					value: '/',
-					value: null,
-					selectedChild: {
-						type: 'collection',
-						value: 'Boards'
-					}
-				},
-				collectionPath: null ,
-				subPath: {
-					type: 'id',
-					value: '/Boards/123456789012345678901234',
-					value: '123456789012345678901234'
-				} ,
-				endPath: {
-					type: 'id',
-					value: '/Users/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
+		var matches ;
 		
-		expect( pathMatch( '{...}/Users/{id}' , '/Users/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: null,
-					value: '/',
-					value: null,
-					selectedChild: {
-						type: 'collection',
-						value: 'Users'
-					}
-				},
-				collectionPath: null ,
-				endPath: {
-					type: 'id',
-					value: '/Users/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
+		matches = pathMatch( '/{...}/Users/{document}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"subPath":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.subPath.toString() ).to.be( '/Boards/123456789012345678901234' ) ;
+		expect( matches.subPath.after.toString() ).to.be( '/Users/123456789012345678901234' ) ;
+		expect( matches.users.toString() ).to.be( '/Users' ) ;
+		expect( matches.usersDocument.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.usersDocument.upto.toString() ).to.be( '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		expect( matches.wildDocument.toString() ).to.be( '/123456789012345678901234' ) ;
+		expect( matches.subPath.match[0].toString() ).to.be( 'Boards' ) ;
+		expect( matches.subPath.match.last.toString() ).to.be( '123456789012345678901234' ) ;
 	} ) ;
 	
 	it( "Pattern matching with the '{...}' wildcard at the middle of the pattern" , function() {
-		expect( pathMatch( '/Blogs/{id}/{...}/Comments/{id}' , '/Blogs/123456789012345678901234/Articles/123456789012345678901234/Comments/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: 'id',
-					value: '/Blogs/123456789012345678901234',
-					value: '123456789012345678901234',
-					selectedChild: {
-						type: 'collection',
-						value: 'Articles'
-					}
-				},
-				collectionPath: {
-					value: 'Blogs',
-					type: 'collection',
-					value: '/Blogs'
-				} ,
-				subPath: {
-					type: 'id',
-					value: '/Articles/123456789012345678901234',
-					value: '123456789012345678901234'
-				} ,
-				endPath: {
-					type: 'id',
-					value: '/Comments/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
+		var matches ;
 		
-		expect( pathMatch( '/Blogs/{id}/{...}/Comments/{id}' , '/Blogs/123456789012345678901234/Comments/123456789012345678901234' ) )
-			.to.eql( {
-				path: {
-					type: 'id',
-					value: '/Blogs/123456789012345678901234',
-					value: '123456789012345678901234',
-					selectedChild: {
-						type: 'collection',
-						value: 'Comments'
-					}
-				},
-				collectionPath: {
-					value: 'Blogs',
-					type: 'collection',
-					value: '/Blogs'
-				} ,
-				endPath: {
-					type: 'id',
-					value: '/Comments/123456789012345678901234',
-					value: '123456789012345678901234'
-				}
-			} ) ;
-	} ) ;
-	
-	it( "Pattern matching with the '{id}' wildcard" , function() {
-		expect( pathMatch( '/Boards/{id}' , '/Boards/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards',
-				value: 'Boards'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{id}' , '/Boards/slug' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Boards/{id}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{id}/Users/{id}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/123456789012345678901234/{id}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/{id}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-	} ) ;
-	
-	it( "Pattern matching with the '{slugId}' wildcard" , function() {
-		expect( pathMatch( '/Boards/{slugId}' , '/Boards/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Boards/{slugId}' , '/Boards/some-slug' ) ).to.eql( {
-			path: {
-				type: 'slugId',
-				value: '/Boards/some-slug',
-				value: 'some-slug'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards',
-				value: 'Boards'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{slugId}/Users/123456789012345678901234' , '/Boards/my-boards/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/my-boards/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/my-boards/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{slugId}/Users/{slugId}' , '/Boards/my-boards/Users/bob' ) ).to.eql( {
-			path: {
-				type: 'slugId',
-				value: '/Boards/my-boards/Users/bob',
-				value: 'bob'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/my-boards/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/123456789012345678901234/{slugId}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-	} ) ;
-	
-	it( "Pattern matching with the '{document}' wildcard" , function() {
-		expect( pathMatch( '/Boards/{document}' , '/Boards/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards',
-				value: 'Boards'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{document}' , '/Boards/slug' ) ).to.eql( {
-			path: {
-				type: 'slugId',
-				value: '/Boards/slug',
-				value: 'slug'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards',
-				value: 'Boards'
-			}
-		} ) ;
-	} ) ;
-	
-	it( "Pattern matching with the '{collection}' wildcard" , function() {
-		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/{collection}/123456789012345678901234/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/{collection}/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
-		expect( pathMatch( '/Boards/{collection}/Users/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Boards/{collection}/Users/{collection}' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		matches = pathMatch( '/Blogs/{id}/{...}/Comments/{id}' , '/Blogs/123456789012345678901234/Articles/123456789012345678901234/Comments/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"blogs":{"match":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"}],"onward":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"blogsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"}],"after":[{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"subPath":{"match":[{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"comments":{"match":[{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"}],"before":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"}],"onward":[{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildId1":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"}],"after":[{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildId2":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"}],"after":[],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"commentsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"}],"after":[],"upto":[{"value":"Blogs","isDocument":false,"isCollection":true,"type":"collection","identifier":"blogs"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Articles","isDocument":false,"isCollection":true,"type":"collection","identifier":"articles"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Comments","isDocument":false,"isCollection":true,"type":"collection","identifier":"comments"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		expect( matches.subPath.toString() ).to.be( '/Articles/123456789012345678901234' ) ;
+		expect( matches.subPath.upto.toString() ).to.be( '/Blogs/123456789012345678901234/Articles/123456789012345678901234' ) ;
+		expect( matches.subPath.onward.toString() ).to.be( '/Articles/123456789012345678901234/Comments/123456789012345678901234' ) ;
+		expect( matches.wildId1.upto.toString() ).to.be( '/Blogs/123456789012345678901234' ) ;
+		expect( matches.wildId2.upto.toString() ).to.be( '/Blogs/123456789012345678901234/Articles/123456789012345678901234/Comments/123456789012345678901234' ) ;
 	} ) ;
 } ) ;
 
-	
 
+	
 describe( "Full path parsing" , function() {
 	
 	var parse = restQuery.path.fullPathParse ;
@@ -827,6 +486,8 @@ describe( "Full path pattern matching" , function() {
 	var pathMatch = restQuery.path.fullPathMatch ;
 	
 	it( "Basic pattern matching" , function() {
+		var matches ;
+		
 		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
 		expect( pathMatch( '/#edit' , '/' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/' , '/#edit' ) ).to.be.ok() ;
@@ -846,64 +507,30 @@ describe( "Full path pattern matching" , function() {
 		expect( pathMatch( '/Users#edit' , '/Users' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Users' , '/Users#edit' ) ).to.be.ok() ;
 		
-		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Users/123456789012345678901234' ,
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Users' ,
-				value: 'Users'
-			}
-		} ) ;
+		matches = pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
 		
-		expect( pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234#edit' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Users/123456789012345678901234' ,
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Users' ,
-				value: 'Users'
-			} ,
-			fragment: 'edit'
-		} ) ;
+		matches = pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234#edit' ) ;
+		//console.log( JSON.stringify( matches , null , '  ' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"fragment":"edit"} ) ;
+		expect( matches.fragment ).to.be( 'edit' ) ;
 		
 		expect( pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 	} ) ;
 	
 	it( "Complex pattern matching" , function() {
-		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			}
-		} ) ;
+		var matches ;
 		
-		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.eql( {
-			path: {
-				type: 'id',
-				value: '/Boards/123456789012345678901234/Users/123456789012345678901234',
-				value: '123456789012345678901234'
-			},
-			collectionPath: {
-				type: 'collection' ,
-				value: '/Boards/123456789012345678901234/Users',
-				value: 'Users'
-			},
-			fragment: 'edit'
-		} ) ;
+		matches = pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollection":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollectionDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
+		
+		matches = pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ;
+		//console.log( JSON.stringify( matches , null , '' ) ) ;
+		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollection":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollectionDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"fragment":"edit"} ) ;
+		expect( matches.fragment ).to.be( 'edit' ) ;
 		
 		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
 		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
