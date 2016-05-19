@@ -251,6 +251,23 @@ function createPathArray( array )
 
 
 
+function createMatchesObject( matches )
+{
+	matches = matches || {} ;
+	
+	// Replace the .toString() method, make it non-enumerable
+	Object.defineProperties( matches , {
+		primaryPath: { get: function() {
+			if ( this.subPath ) { return this.subPath.before ; }
+			else { return this.full ; }
+		} }
+	} ) ;
+	
+	return matches ;
+}
+
+
+
 pathModule.parse = function parse( path , isPattern )
 {
 	var i , iMax , j , splitted , parsed , parsedNode , error ;
@@ -580,9 +597,11 @@ pathModule.match = function match( pathPattern , path , context )
 		contextifiedPathPattern ,
 		anySubPathCount = 0 , anySubPathMatchCount ,
 		refMatch = null ,
-		matches = { full: path } ,
+		matches = createMatchesObject() ,
 		matchElements = createPathArray() ,
 		nameOccurencies = {} ;
+	
+	matches.full = path ;
 	
 	// If the parsed pattern is empty...
 	if ( pathPattern.length === 0 ) { return path.length === 0 ? matches : false ; }
