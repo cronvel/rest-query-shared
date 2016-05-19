@@ -1,6 +1,6 @@
 {
   "name": "rest-query-shared",
-  "version": "0.32.1",
+  "version": "0.32.2",
   "description": "Perform REST queries directly on your database! Shared bits between Node.js and browser.",
   "main": "lib/restQueryShared.js",
   "directories": {
@@ -47,5 +47,13 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cronvel/rest-query-shared/issues"
+  },
+  "copyright": {
+    "title": "Rest Query (shared lib)",
+    "years": [
+      2014,
+      2016
+    ],
+    "owner": "Cédric Ronvel"
   }
 }
