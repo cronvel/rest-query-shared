@@ -805,7 +805,7 @@ pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath , 
 	if ( typeof fullPathPattern.fragment === 'string' && fullPathPattern.fragment !== ( fullPath.fragment || '' ) ) { return false ; }
 	
 	matches = pathModule.match( fullPathPattern.path , fullPath.path , context ) ;
-	if ( ! matches ) { return false ; }
+	if ( ! matches ) { return matches ; }
 	
 	// Add the fragment
 	if ( fullPath.fragment ) { matches.fragment = fullPath.fragment ; }

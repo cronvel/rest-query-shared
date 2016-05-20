@@ -600,6 +600,10 @@ describe( "Full path pattern matching" , function() {
 		expect( fullPathMatch( '/Boards/{$unexistant}/#edit' , '/Boards/12345678901234567890123f/#edit' , {} ) ).not.to.be.ok() ;
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
+	
+	it( "Contextified patterns referencing an unexistant key should not match, returning undefined instead of false (help debugging)" , function() {
+		expect( fullPathMatch( '/Users/{$unexistant}/Friends/' , '/Users/123456789012345678901234/Friends' , {} ) ).to.be( undefined ) ;
+	} ) ;
 } ) ;
 
 
