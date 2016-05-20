@@ -1,6 +1,6 @@
 {
   "name": "rest-query-shared",
-  "version": "0.32.6",
+  "version": "0.32.7",
   "description": "Perform REST queries directly on your database! Shared bits between Node.js and browser.",
   "main": "lib/restQueryShared.js",
   "directories": {

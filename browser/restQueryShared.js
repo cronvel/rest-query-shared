@@ -645,7 +645,7 @@ pathModule.match = function match( pathPattern , path , context )
 					}
 					else
 					{
-						return false ;
+						return undefined ;
 					}
 				}
 				

@@ -492,8 +492,8 @@ describe( "Path pattern matching" , function() {
 		expect( function() { pathMatch( '/Users/{$connectedUser}/Friends/' , '/Users/123456789012345678901234/Friends' ) ; } ).to.throwException() ;
 	} ) ;
 	
-	it( "Contextified patterns referencing an unexistant key should not match" , function() {
-		expect( pathMatch( '/Users/{$unexistant}/Friends/' , '/Users/123456789012345678901234/Friends' , {} ) ).not.to.be.ok() ;
+	it( "Contextified patterns referencing an unexistant key should not match, returning undefined instead of false (help debugging)" , function() {
+		expect( pathMatch( '/Users/{$unexistant}/Friends/' , '/Users/123456789012345678901234/Friends' , {} ) ).to.be( undefined ) ;
 	} ) ;
 } ) ;
 
