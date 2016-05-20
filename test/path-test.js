@@ -473,7 +473,6 @@ describe( "Path pattern matching" , function() {
 		var matches , context ;
 		
 		//console.log( restQuery.path.parse( '/Users/{$connectedUser}/Friends/' , true ) ) ;
-		expect( function() { pathMatch( '/Users/{$connectedUser}/Friends/' , '/Users/123456789012345678901234/Friends' ) ; } ).to.throwException() ;
 		expect( pathMatch( '/Users/{$connectedUser}/Friends/' , '/Users/123456789012345678901234/Friends' , { connectedUser: '123456789012345678901237' } ) ).not.to.be.ok() ;
 		
 		matches = pathMatch( '/Users/{$connectedUser}/Friends/' , '/Users/123456789012345678901234/Friends' , { connectedUser: '123456789012345678901234' } ) ;
@@ -487,6 +486,14 @@ describe( "Path pattern matching" , function() {
 		context = pathMatch( '/Users:people/{document:connectedUser}' , '/Users/123456789012345678901234' ) ;
 		expect( pathMatch( '/{$connectedUser.upto}/Friends/' , '/Users/123456789012345678901234/Friends' , context ) ).to.be.ok() ;
 		expect( pathMatch( '/{$connectedUser.upto}/Friends/' , '/Users/123456789012345678901237/Friends' , context ) ).not.to.be.ok() ;
+	} ) ;
+	
+	it( "Contextified patterns without the context object should throw " , function() {
+		expect( function() { pathMatch( '/Users/{$connectedUser}/Friends/' , '/Users/123456789012345678901234/Friends' ) ; } ).to.throwException() ;
+	} ) ;
+	
+	it( "Contextified patterns referencing an unexistant key should not match" , function() {
+		expect( pathMatch( '/Users/{$unexistant}/Friends/' , '/Users/123456789012345678901234/Friends' , {} ) ).not.to.be.ok() ;
 	} ) ;
 } ) ;
 
@@ -536,58 +543,61 @@ describe( "Full path parsing" , function() {
 
 describe( "Full path pattern matching" , function() {
 	
-	var pathMatch = restQuery.path.fullPathMatch ;
+	var fullPathMatch = restQuery.path.fullPathMatch ;
 	
 	it( "Basic pattern matching" , function() {
 		var matches ;
 		
-		expect( pathMatch( '/' , '/' ) ).to.be.ok() ;
-		expect( pathMatch( '/#edit' , '/' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/' , '/#edit' ) ).to.be.ok() ;
-		expect( pathMatch( '/#edit' , '/#edit' ) ).to.be.ok() ;
-		expect( pathMatch( '/#edit' , '/#ed' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/#ed' , '/#edit' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/' , '/' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/#edit' , '/' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/' , '/#edit' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/#edit' , '/#edit' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/#edit' , '/#ed' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/#ed' , '/#edit' ) ).not.to.be.ok() ;
 		
-		expect( pathMatch( '/Users' , '/' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users#edit' , '/#edit' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/' , '/Users' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/#edit' , '/Users#edit' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Users' , '/' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Users#edit' , '/#edit' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/' , '/Users' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/#edit' , '/Users#edit' ) ).not.to.be.ok() ;
 		
-		expect( pathMatch( '/Users' , '/Users' ) ).to.be.ok() ;
-		expect( pathMatch( '/Users#edit' , '/Users#edit' ) ).to.be.ok() ;
-		expect( pathMatch( '/Users#ed' , '/Users#edit' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users#edit' , '/Users#ed' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users#edit' , '/Users' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users' , '/Users#edit' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Users' , '/Users' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Users#edit' , '/Users#edit' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Users#ed' , '/Users#edit' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Users#edit' , '/Users#ed' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Users#edit' , '/Users' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Users' , '/Users#edit' ) ).to.be.ok() ;
 		
-		matches = pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ;
+		matches = fullPathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234' ) ;
 		//console.log( JSON.stringify( matches , null , '' ) ) ;
 		expect( matches ).to.eql( {"full":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
 		
-		matches = pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234#edit' ) ;
+		matches = fullPathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234#edit' ) ;
 		//console.log( JSON.stringify( matches , null , '  ' ) ) ;
 		expect( matches ).to.eql( {"full":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"users":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"usersDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"fragment":"edit"} ) ;
 		expect( matches.fragment ).to.be( 'edit' ) ;
 		
-		expect( pathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Users/123456789012345678901234#edit' , '/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Users/123456789012345678901234' , '/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 	} ) ;
 	
 	it( "Complex pattern matching" , function() {
 		var matches ;
 		
-		matches = pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
+		matches = fullPathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ;
 		//console.log( JSON.stringify( matches , null , '' ) ) ;
 		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollection":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollectionDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]}} ) ;
 		
-		matches = pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ;
+		matches = fullPathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ;
 		//console.log( JSON.stringify( matches , null , '  ' ) ) ;
 		expect( matches ).to.eql( {"full":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"boards":{"match":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"before":[],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"onward":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"boardsDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"}],"after":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollection":{"match":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"after":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"onward":[{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"wildCollectionDocument":{"match":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"before":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"}],"after":[],"upto":[{"value":"Boards","isDocument":false,"isCollection":true,"type":"collection","identifier":"boards"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"},{"value":"Users","isDocument":false,"isCollection":true,"type":"collection","identifier":"users"},{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}],"onward":[{"value":"123456789012345678901234","isDocument":true,"isCollection":false,"type":"id","identifier":"123456789012345678901234"}]},"fragment":"edit"} ) ;
 		expect( matches.fragment ).to.be( 'edit' ) ;
 		
-		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
-		expect( pathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234#edit' , '/Boards/123456789012345678901234/Users/123456789012345678901234' ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Boards/123456789012345678901234/{collection}/123456789012345678901234' , '/Boards/123456789012345678901234/Users/123456789012345678901234#edit' ) ).to.be.ok() ;
 		
+		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/12345678901234567890123f/#edit' , { boardId: '123456789012345678901234' } ) ).not.to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$unexistant}/#edit' , '/Boards/12345678901234567890123f/#edit' , {} ) ).not.to.be.ok() ;
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
 } ) ;
