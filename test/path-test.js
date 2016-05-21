@@ -498,6 +498,36 @@ describe( "Path pattern matching" , function() {
 } ) ;
 
 
+
+describe( "Apply context" , function() {
+	
+	var applyContext = restQuery.path.applyContext ;
+	
+	it( "Contextified path referencing an unexistant key should return false" , function() {
+		expect( applyContext( '/Users/{$unexistant}/Friends' , {} ) ).to.be( false ) ;
+	} ) ;
+	
+	it( "Contextified path referencing an existant key should replace it" , function() {
+		expect( applyContext( '/Users/{$connectedUser}/Friends' , { connectedUser: "123456789012345678901234" } ).toString() )
+			.to.be( '/Users/123456789012345678901234/Friends' ) ;
+	} ) ;
+	
+	it( "Contextified path referencing a path (array) should replace it" , function() {
+		expect( applyContext( '/{$connectedUser}/Friends' , { connectedUser: "/Users/123456789012345678901234" } ).toString() )
+			.to.be( '/Users/123456789012345678901234/Friends' ) ;
+		
+		expect( applyContext( '/{$connectedUser}/Friends' , { connectedUser: "/Users/123456789012345678901234" } ).toString() )
+			.to.be( '/Users/123456789012345678901234/Friends' ) ;
+		
+		expect( applyContext( '/{$connectedUser}/Friends' , { connectedUser: "/Users/123456789012345678901234" } ) )
+			.to.eql( [{value:'Users',isDocument:false,isCollection:true,type:'collection',identifier:'users'},{value:'123456789012345678901234',isDocument:true,isCollection:false,type:'id',identifier:'123456789012345678901234'},{value:'Friends',isDocument:false,isCollection:true,type:'collection',identifier:'friends'}] );
+		
+		expect( applyContext( '/{$connectedUser}/Friends' , { connectedUser: restQuery.path.parse( "/Users/123456789012345678901234" ) } ) )
+			.to.eql( [{value:'Users',isDocument:false,isCollection:true,type:'collection',identifier:'users'},{value:'123456789012345678901234',isDocument:true,isCollection:false,type:'id',identifier:'123456789012345678901234'},{value:'Friends',isDocument:false,isCollection:true,type:'collection',identifier:'friends'}] );
+	} ) ;
+} ) ;
+	
+
 	
 describe( "Full path parsing" , function() {
 	
