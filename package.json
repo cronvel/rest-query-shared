@@ -1,36 +1,21 @@
 {
   "name": "rest-query-shared",
-  "version": "0.32.10",
+  "version": "0.32.11",
   "description": "Perform REST queries directly on your database! Shared bits between Node.js and browser.",
   "main": "lib/restQueryShared.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "string-kit": "^0.4.4",
+    "string-kit": "^0.5.4",
     "tree-kit": "^0.5.20"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
     "jshint": "^2.9.2",
-    "mocha": "^2.4.5",
+    "mocha": "^2.5.3",
     "browserify": "^13.0.1",
-    "testling": "^1.7.1",
     "uglify-js": "^2.6.2"
-  },
-  "testling": {
-    "harness": "mocha",
-    "files": "test/*.js",
-    "browsers": [
-      "ie/8..latest",
-      "chrome/35..latest",
-      "firefox/35..latest",
-      "safari/latest",
-      "opera/11.0..latest",
-      "iphone/6",
-      "ipad/6",
-      "android-browser/latest"
-    ]
   },
   "scripts": {
     "test": "mocha -R dot"
