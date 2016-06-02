@@ -3225,9 +3225,10 @@ describe( "Full path pattern matching" , function() {
 		expect( fullPathMatch( '/{$parent.primaryPath}#add' , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: '/Organizations/sodip/Partners' } } ) ).to.be.ok() ;
 		
 		var parsed = fullPathParse( '/{$parent.primaryPath}#add' , true ) ;
+		var ppp = restQuery.path.parse( '/Organizations/sodip/Partners' ) ;
 		expect( parsed.toString() ).to.be( '/{$parent.primaryPath}#add' ) ;
-		expect( fullPathMatch( parsed , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: '/Organizations/sodip/Partners' } } ) ).to.be.ok() ;
-		
+		expect( fullPathMatch( parsed , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: ppp.toString() } } ) ).to.be.ok() ;
+		expect( fullPathMatch( parsed , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: ppp } } ) ).to.be.ok() ;
 	} ) ;
 } ) ;
 
