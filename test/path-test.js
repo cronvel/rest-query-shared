@@ -628,6 +628,13 @@ describe( "Full path pattern matching" , function() {
 		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
 		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/12345678901234567890123f/#edit' , { boardId: '123456789012345678901234' } ) ).not.to.be.ok() ;
 		expect( fullPathMatch( '/Boards/{$unexistant}/#edit' , '/Boards/12345678901234567890123f/#edit' , {} ) ).not.to.be.ok() ;
+		
+		// Verify that the slash is optional between the path and the hash
+		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}#edit' , '/Boards/123456789012345678901234#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
 	
