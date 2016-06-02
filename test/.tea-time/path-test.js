@@ -202,7 +202,7 @@ function arrayGetLastItem() { return this[ this.length - 1 ] ; } ; // jshint ign
 
 function fullPathObjectToString()
 {
-	return this.path.toString() + ( this.query || '' ) + ( this.fragment || '' ) ; // jshint ignore:line
+	return this.path.toString() + ( this.query || '' ) + ( this.fragment ? '#' + this.fragment : '' ) ; // jshint ignore:line
 }
 
 
@@ -3107,32 +3107,32 @@ describe( "Apply context" , function() {
 	
 describe( "Full path parsing" , function() {
 	
-	var parse = restQuery.path.fullPathParse ;
+	var fullPathParse = restQuery.path.fullPathParse ;
 	
 	it( "should parse a full URL path, returning an array of node" , function() {
-		expect( parse( '/' ) ).to.eql( { path: [] } ) ;
-		expect( parse( '/Users' ) ).to.eql( { path: [ { type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , value: 'Users' } ] } ) ;
-		expect( parse( '/Users/51d18492541d2e3614ca2a80' ) ).to.eql( {
+		expect( fullPathParse( '/' ) ).to.eql( { path: [] } ) ;
+		expect( fullPathParse( '/Users' ) ).to.eql( { path: [ { type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , value: 'Users' } ] } ) ;
+		expect( fullPathParse( '/Users/51d18492541d2e3614ca2a80' ) ).to.eql( {
 			path: [
 				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , value: 'Users' } ,
 				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , value: '51d18492541d2e3614ca2a80' }
 			]
 		} ) ;
-		expect( parse( '/Users/51d18492541d2e3614ca2a80#edit' ) ).to.eql( {
+		expect( fullPathParse( '/Users/51d18492541d2e3614ca2a80#edit' ) ).to.eql( {
 			path: [
 				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , value: 'Users' } ,
 				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , value: '51d18492541d2e3614ca2a80' }
 			] ,
 			fragment: 'edit'
 		} ) ;
-		expect( parse( '/Users/51d18492541d2e3614ca2a80?filter=name' ) ).to.eql( {
+		expect( fullPathParse( '/Users/51d18492541d2e3614ca2a80?filter=name' ) ).to.eql( {
 			path: [
 				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , value: 'Users' } ,
 				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , value: '51d18492541d2e3614ca2a80' }
 			] ,
 			query: 'filter=name'
 		} ) ;
-		expect( parse( '/Users/51d18492541d2e3614ca2a80?filter=name#edit' ) ).to.eql( {
+		expect( fullPathParse( '/Users/51d18492541d2e3614ca2a80?filter=name#edit' ) ).to.eql( {
 			path: [
 				{ type: 'collection' , isCollection: true , isDocument: false , identifier: 'users' , value: 'Users' } ,
 				{ type: 'id' , isCollection: false , isDocument: true , identifier: '51d18492541d2e3614ca2a80' , value: '51d18492541d2e3614ca2a80' }
@@ -3150,6 +3150,7 @@ describe( "Full path parsing" , function() {
 describe( "Full path pattern matching" , function() {
 	
 	var fullPathMatch = restQuery.path.fullPathMatch ;
+	var fullPathParse = restQuery.path.fullPathParse ;
 	
 	it( "Basic pattern matching" , function() {
 		var matches ;
@@ -3204,11 +3205,29 @@ describe( "Full path pattern matching" , function() {
 		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
 		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/12345678901234567890123f/#edit' , { boardId: '123456789012345678901234' } ) ).not.to.be.ok() ;
 		expect( fullPathMatch( '/Boards/{$unexistant}/#edit' , '/Boards/12345678901234567890123f/#edit' , {} ) ).not.to.be.ok() ;
+		
+		// Verify that the slash is optional between the path and the hash
+		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}#edit' , '/Boards/123456789012345678901234/#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}/#edit' , '/Boards/123456789012345678901234#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		expect( fullPathMatch( '/Boards/{$boardId}#edit' , '/Boards/123456789012345678901234#edit' , { boardId: '123456789012345678901234' } ) ).to.be.ok() ;
+		
+		expect( fullPathMatch( '/{$parent.primaryPath}#add' , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: '/Organizations/sodip/Partners' } } ) ).to.be.ok() ;
+		
 		// /!\ more test are needed, but no time for that now /!\
 	} ) ;
 	
 	it( "Contextified patterns referencing an unexistant key should not match, returning undefined instead of false (help debugging)" , function() {
 		expect( fullPathMatch( '/Users/{$unexistant}/Friends/' , '/Users/123456789012345678901234/Friends' , {} ) ).to.be( undefined ) ;
+	} ) ;
+	
+	it( "Historical bugs" , function() {
+		expect( fullPathMatch( '/{$parent.primaryPath}#add' , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: '/Organizations/sodip/Partners' } } ) ).to.be.ok() ;
+		
+		var parsed = fullPathParse( '/{$parent.primaryPath}#add' , true ) ;
+		expect( parsed.toString() ).to.be( '/{$parent.primaryPath}#add' ) ;
+		expect( fullPathMatch( parsed , '/Organizations/sodip/Partners#add' , { parent: { primaryPath: '/Organizations/sodip/Partners' } } ) ).to.be.ok() ;
+		
 	} ) ;
 } ) ;
 
