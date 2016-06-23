@@ -237,7 +237,17 @@ function arrayGetLastItem() { return this[ this.length - 1 ] ; } ; // jshint ign
 
 function fullPathObjectToString()
 {
-	return this.path.toString() + ( this.query || '' ) + ( this.fragment ? '#' + this.fragment : '' ) ; // jshint ignore:line
+	var str ;
+	
+	str = this.path.toString() + ( this.query || '' ) ;	// jshint ignore:line
+	
+	if ( this.hash )	// jshint ignore:line
+	{
+		str += '#' + this.hash.action ;	// jshint ignore:line
+		if( this.hash.path ) { str += ':' + this.hash.path.toString() ; }	// jshint ignore:line
+	}
+	
+	return str ;
 }
 
 
@@ -787,7 +797,7 @@ pathModule.match = function match( pathPattern , path , context )
 
 
 
-// Same than parse(), but for full path (path + query + fragment)
+// Same than parse(), but for full path (path + query + hash)
 pathModule.fullPathParse = function fullPathParse( fullPath , isPattern )
 {
 	if ( fullPath && typeof fullPath === 'object'  ) { return fullPath ; }	// already parsed
@@ -802,17 +812,40 @@ pathModule.fullPathParse = function fullPathParse( fullPath , isPattern )
 	// /!\ Query string is not parsed much ATM /!\
 	if ( matches[ 2 ] !== undefined ) { parsed.query = matches[ 2 ] ; }
 	
-	if ( matches[ 3 ] !== undefined ) { parsed.fragment = matches[ 3 ] ; }
+	if ( matches[ 3 ] !== undefined )
+	{
+		parsed.hash = pathModule.hashParse( matches[ 3 ] , isPattern ) ;
+	}
 	
 	return parsed ;
 } ;
 
 
 
-// Same than match(), but for a full path (path + query + fragment)
+// Same than parse(), but for full path (path + query + hash)
+pathModule.hashParse = function hashParse( hash , isPattern )
+{
+	var indexOf = hash.indexOf( ':' ) ;
+	
+	if ( indexOf === -1 )
+	{
+		return { action: hash } ;
+	}
+	else
+	{
+		return {
+			action: hash.slice( 0 , indexOf ) ,
+			path: pathModule.parse( hash.slice( indexOf + 1 ) , isPattern )
+		} ;
+	}
+} ;
+
+
+
+// Same than match(), but for a full path (path + query + hash)
 pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath , context )
 {
-	var matches ;
+	var matches , hashMatches ;
 	
 	try {
 		if ( ! fullPathPattern || typeof fullPathPattern !== 'object' ) { fullPathPattern = pathModule.fullPathParse( fullPathPattern , true ) ; }
@@ -824,13 +857,37 @@ pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath , 
 	
 	// /!\ Query string is not used for matching ATM /!\
 	
-	if ( typeof fullPathPattern.fragment === 'string' && fullPathPattern.fragment !== ( fullPath.fragment || '' ) ) { return false ; }
+	// if no hash in the pattern, then it accept all hash
+	//console.log( fullPathPattern.hash ) ;
+	//console.log( fullPath.hash ) ;
+	if ( fullPathPattern.hash )
+	{
+		if (
+			fullPathPattern.hash.action !== '*' &&
+			( ! fullPath.hash || fullPathPattern.hash.action !== fullPath.hash.action )
+		)
+		{
+			return false ;
+		}
+		
+		if ( ! fullPathPattern.hash.path !== ! fullPath.hash.path ) { return false ; }	// jshint ignore:line
+		
+		if ( fullPath.hash ) { hashMatches = { action: fullPath.hash.action } ; }
+		
+		if ( fullPathPattern.hash.path )
+		{
+			if ( ! fullPath.hash ) { return false ; }
+			hashMatches.path = pathModule.match( fullPathPattern.hash.path , fullPath.hash.path , context ) ;
+			if ( ! hashMatches ) { return hashMatches ; }
+		}
+	}
 	
 	matches = pathModule.match( fullPathPattern.path , fullPath.path , context ) ;
 	if ( ! matches ) { return matches ; }
 	
-	// Add the fragment
-	if ( fullPath.fragment ) { matches.fragment = fullPath.fragment ; }
+	// Add the hash
+	//if ( fullPath.hash ) { matches.hash = fullPath.hash ; }
+	if ( hashMatches ) { matches.hash = hashMatches ; }
 	
 	return matches ;
 } ;
