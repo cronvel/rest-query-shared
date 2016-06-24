@@ -809,7 +809,7 @@ pathModule.fullPathParse = function fullPathParse( fullPath , isPattern )
 	
 	var matches , parsed = createFullPathObject() ;
 	
-	matches = fullPath.match( /^(\/[^#?]*)(?:\?([^#]+))?(?:#([^]+))?$/ ) ;
+	matches = fullPath.match( /^(\/[^#?]*)(?:\?([^#]+))?(?:#([^]+)?)?$/ ) ;
 	if ( ! matches ) { throw new Error( "[restQuery] .fullPathParse() 'fullPath' should be a valid path" ) ; }
 	
 	parsed.path = pathModule.parse( matches[ 1 ] , isPattern ) ;

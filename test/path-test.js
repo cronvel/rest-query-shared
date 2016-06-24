@@ -556,6 +556,15 @@ describe( "Full path parsing" , function() {
 			}
 		} ) ;
 	} ) ;
+	
+	it( "hash present but empty should be like no hash at all" , function() {
+		//console.log( fullPathParse( '/Users#' ) ) ;
+		expect( fullPathParse( '/Users#' ) ).to.eql( {
+			path: [
+				{ value: 'Users', isDocument: false, isCollection: true, type: 'collection', identifier: 'users' }
+			]
+		} ) ;
+	} ) ;
 } ) ;
 
 
