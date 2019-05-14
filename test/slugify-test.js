@@ -24,48 +24,52 @@
 	SOFTWARE.
 */
 
-/* global describe, it, before, after, expect */
+/* global describe, it, expect */
 
 "use strict" ;
 
 
 
-var restQuery = require( '..' ) ;
+const restQuery = require( '..' ) ;
 
 
 
 
 
-			/* Tests */
+/* Tests */
 
 
 
-describe( "Slugify" , function() {
-	
-	it( "should slugify ASCII string" , function() {
+describe( "Slugify" , () => {
+
+	it( "should slugify ASCII string" , () => {
 		expect( restQuery.slugify( 'My wonderful blog' ) ).to.be( 'my-wonderful-blog' ) ;
 		expect( restQuery.slugify( 'My WoNdErful BloG' ) ).to.be( 'my-wonderful-blog' ) ;
 		expect( restQuery.slugify( '  My   WoNdErful   BloG  ' ) ).to.be( 'my-wonderful-blog' ) ;
 		expect( restQuery.slugify( '-My wonderful blog-' ) ).to.be( 'my-wonderful-blog' ) ;
 		expect( restQuery.slugify( 'ØMQ' ) ).to.be( 'omq' ) ;
 	} ) ;
-	
-	it( 'edge cases: slugified string that are valid ID/offset should have an hyphen appended' , function() {
+
+	it( 'edge cases: slugified string that are valid ID/offset should have an hyphen appended' , () => {
 		expect( restQuery.slugify( '51d18492541d2e3614ca2a80' ) ).to.be( '51d18492541d2e3614ca2a80-' ) ;
 		expect( restQuery.slugify( '51D18492541D2E3614CA2A80' ) ).to.be( '51d18492541d2e3614ca2a80-' ) ;
 		expect( restQuery.slugify( '123' ) ).to.be( '123-' ) ;
 	} ) ;
-	
-	it( 'edge cases: empty or too long strings' , function() {
+
+	it( 'edge cases: empty or too long strings' , () => {
 		expect( restQuery.slugify( '' ) ).to.be.an( Error ) ;
 		expect( restQuery.slugify( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfgaz' ) ).to.be( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' ) ;
 	} ) ;
-	
-	it( "when using slugify with options.symbols, it should convert symbols into supported language (ATM: en, fr)" , function() {
+
+	it( "when using slugify with options.symbols, it should convert symbols into supported language (ATM: en, fr)" , () => {
 		expect( restQuery.slugify( '10€ le livre' ) ).to.be( '10-le-livre' ) ;
 		expect( restQuery.slugify( '10€ le livre' , { symbols: true } ) ).to.be( '10-euro-le-livre' ) ;
 		expect( restQuery.slugify( 'I ♥ NY' , { symbols: 'en' } ) ).to.be( 'i-love-ny' ) ;
 		expect( restQuery.slugify( "J'♥ Paris" , { symbols: 'fr' } ) ).to.be( 'j-aime-paris' ) ;
+	} ) ;
+
+	it( "unicode character behavior" , () => {
+		expect( restQuery.slugify( 'عرض' , { worldAlpha: true } ) ).to.be( 'erd' ) ;
 	} ) ;
 } ) ;
 

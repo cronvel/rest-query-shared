@@ -33,6 +33,7 @@ module.exports = {
 	path: require( './path.js' )
 } ;
 
+
 },{"./path.js":3}],2:[function(require,module,exports){
 /*
 	Rest Query (shared lib)
@@ -66,7 +67,7 @@ module.exports = {
 
 // Charmap for string validation
 
-var charmap = {
+const charmap = {
 	lowerCaseArray: [ 'a' , 'b' , 'c' , 'd' , 'e' , 'f' , 'g' , 'h' , 'i' , 'j' , 'k' , 'l' , 'm' , 'n' , 'o' , 'p' , 'q' , 'r' , 's' , 't' , 'u' , 'v' , 'w' , 'x' , 'y' , 'z' ] ,
 	upperCaseArray: [ 'A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J' , 'K' , 'L' , 'M' , 'N' , 'O' , 'P' , 'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z' ] ,
 	digitArray: [ '0' , '1' , '2' , '3' , '4' , '5' , '6' , '7' , '8' , '9' ] ,
@@ -82,7 +83,7 @@ var charmap = {
 
 	// Slugify map
 	// From Django urlify.js
-	/* jshint -W015 */
+	// Arabic from https://github.com/sindresorhus/slugify/blob/master/replacements.js
 	asciiMapCommon: {
 		// latin
 		'À': 'A' ,
@@ -161,6 +162,7 @@ var charmap = {
 		'’': "'" ,
 		'…': '...'
 	} ,
+	// From Django urlify.js
 	asciiMapWorldAlpha: {
 		// greek
 		'α': 'a' ,
@@ -367,7 +369,104 @@ var charmap = {
 		'Ķ': 'k' ,
 		'Ļ': 'L' ,
 		'Ņ': 'N' ,
-		'Ū': 'u'
+		'Ū': 'u' ,
+
+		// from https://github.com/sindresorhus/slugify/blob/master/replacements.js
+		// arabic
+		'ء': 'e' ,
+		'آ': 'a' ,
+		'أ': 'a' ,
+		'ؤ': 'w' ,
+		'إ': 'i' ,
+		'ئ': 'y' ,
+		'ا': 'a' ,
+		'ب': 'b' ,
+		'ة': 't' ,
+		'ت': 't' ,
+		'ث': 'th' ,
+		'ج': 'j' ,
+		'ح': 'h' ,
+		'خ': 'kh' ,
+		'د': 'd' ,
+		'ذ': 'dh' ,
+		'ر': 'r' ,
+		'ز': 'z' ,
+		'س': 's' ,
+		'ش': 'sh' ,
+		'ص': 's' ,
+		'ض': 'd' ,
+		'ط': 't' ,
+		'ظ': 'z' ,
+		'ع': 'e' ,
+		'غ': 'gh' ,
+		'ـ': '_' ,
+		'ف': 'f' ,
+		'ق': 'q' ,
+		'ك': 'k' ,
+		'ل': 'l' ,
+		'م': 'm' ,
+		'ن': 'n' ,
+		'ه': 'h' ,
+		'و': 'w' ,
+		'ى': 'a' ,
+		'ي': 'y' ,
+		'َ‎': 'a' ,
+		'ُ': 'u' ,
+		'ِ‎': 'i' ,
+		'٠': '0' ,
+		'١': '1' ,
+		'٢': '2' ,
+		'٣': '3' ,
+		'٤': '4' ,
+		'٥': '5' ,
+		'٦': '6' ,
+		'٧': '7' ,
+		'٨': '8' ,
+		'٩': '9' ,
+
+		// Persian / Farsi
+		'چ': 'ch' ,
+		'ک': 'k' ,
+		'گ': 'g' ,
+		'پ': 'p' ,
+		'ژ': 'zh' ,
+		'ی': 'y' ,
+		'۰': '0' ,
+		'۱': '1' ,
+		'۲': '2' ,
+		'۳': '3' ,
+		'۴': '4' ,
+		'۵': '5' ,
+		'۶': '6' ,
+		'۷': '7' ,
+		'۸': '8' ,
+		'۹': '9' ,
+
+		// Pashto
+		'ټ': 'p' ,
+		'ځ': 'z' ,
+		'څ': 'c' ,
+		'ډ': 'd' ,
+		'ﺫ': 'd' ,
+		'ﺭ': 'r' ,
+		'ړ': 'r' ,
+		'ﺯ': 'z' ,
+		'ږ': 'g' ,
+		'ښ': 'x' ,
+		'ګ': 'g' ,
+		'ڼ': 'n' ,
+		'ۀ': 'e' ,
+		'ې': 'e' ,
+		'ۍ': 'ai' ,
+
+		// Urdu
+		'ٹ': 't' ,
+		'ڈ': 'd' ,
+		'ڑ': 'r' ,
+		'ں': 'n' ,
+		'ہ': 'h' ,
+		'ھ': 'h' ,
+		'ے': 'e'
 	} ,
 	asciiMapSymbolsEn: {
 		// currency
@@ -475,16 +574,9 @@ var charmap = {
 		'<': ' moins' ,
 		'>': ' plus'
 	}
-	/* jshint +W015 */
-
 } ;
 
-//restQuery.stringValidator.asciiMapKeys = Object.keys( restQuery.stringValidator.asciiMap ) ;
-
-
-
 module.exports = charmap ;
-
 
 
 },{}],3:[function(require,module,exports){
@@ -521,13 +613,13 @@ module.exports = charmap ;
 // IMPORTANT: this file is shared with the client!
 // We should only load the minimal stuff
 
-var charmap = require( './charmap.js' ) ;
-var camel = require( 'string-kit/lib/camel.js' ) ;
-var treePath = require( 'tree-kit/lib/path.js' ) ;
+const charmap = require( './charmap.js' ) ;
+const camel = require( 'string-kit/lib/camel.js' ) ;
+const treePath = require( 'tree-kit/lib/path.js' ) ;
 
 
 
-var pathModule = {} ;
+const pathModule = {} ;
 module.exports = pathModule ;
 
 
@@ -626,7 +718,7 @@ function createMatchesObject( matches ) {
 
 
 
-pathModule.parse = function parse( path , isPattern ) {
+pathModule.parse = function( path , isPattern ) {
 	var i , iMax , j , splitted , parsed , parsedNode , error ;
 
 	if ( Array.isArray( path ) ) { return path ; }	// Already parsed
@@ -668,7 +760,7 @@ pathModule.parse = function parse( path , isPattern ) {
 
 
 
-pathModule.parseNode = function parseNode( str , isPattern ) {
+pathModule.parseNode = function( str , isPattern ) {
 	var match , splitted ;
 
 	if ( str.length < 1 ) { throw new Error( '[restQuery] parseNode() : argument #0 length should be >= 1' ) ; }
@@ -904,7 +996,7 @@ function addMatch( matches , matchElements , min , max , nameOccurencies , name 
 
 // Apply a context to a path, applying all substitutions.
 // Return the new path or false if a substitution was not found.
-pathModule.applyContext = function applyContext( path , context ) {
+pathModule.applyContext = function( path , context ) {
 	var i , iMax , contextValue , contextifiedPath = [] ;
 
 	// Let it crash if path is not a valid path
@@ -953,7 +1045,7 @@ pathModule.applyContext = function applyContext( path , context ) {
 		{document}		match any ID and SlugId node
 		{collection}	match any collection node
 */
-pathModule.match = function match( pathPattern , path , context ) {
+pathModule.match = function( pathPattern , path , context ) {
 	try {
 		if ( ! Array.isArray( pathPattern ) ) { pathPattern = pathModule.parse( pathPattern , true ) ; }
 		if ( ! Array.isArray( path ) ) { path = pathModule.parse( path ) ; }
@@ -1075,7 +1167,7 @@ pathModule.match = function match( pathPattern , path , context ) {
 
 
 // Same than parse(), but for full path (path + query + hash)
-pathModule.fullPathParse = function fullPathParse( fullPath , isPattern ) {
+pathModule.fullPathParse = function( fullPath , isPattern ) {
 	if ( fullPath && typeof fullPath === 'object'  ) { return fullPath ; }	// already parsed
 
 	var matches , parsed = createFullPathObject() ;
@@ -1098,7 +1190,7 @@ pathModule.fullPathParse = function fullPathParse( fullPath , isPattern ) {
 
 
 // Same than parse(), but for full path (path + query + hash)
-pathModule.hashParse = function hashParse( hash , isPattern ) {
+pathModule.hashParse = function( hash , isPattern ) {
 	var indexOf = hash.indexOf( ':' ) ;
 
 	if ( indexOf === -1 ) {
@@ -1115,7 +1207,7 @@ pathModule.hashParse = function hashParse( hash , isPattern ) {
 
 
 // Same than match(), but for a full path (path + query + hash)
-pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath , context ) {
+pathModule.fullPathMatch = function( fullPathPattern , fullPath , context ) {
 	var matches , hashMatches ;
 
 	try {
@@ -1161,12 +1253,11 @@ pathModule.fullPathMatch = function fullPathMatch( fullPathPattern , fullPath , 
 } ;
 
 
-
 },{"./charmap.js":2,"string-kit/lib/camel.js":4,"tree-kit/lib/path.js":5}],4:[function(require,module,exports){
 /*
 	String Kit
 
-	Copyright (c) 2014 - 2018 Cédric Ronvel
+	Copyright (c) 2014 - 2019 Cédric Ronvel
 
 	The MIT License (MIT)
 
