@@ -1,14 +1,14 @@
 {
   "name": "rest-query-shared",
-  "version": "0.33.7",
+  "version": "0.33.8",
   "description": "Perform REST queries directly on your database! Shared bits between Node.js and browser.",
   "main": "lib/restQueryShared.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "string-kit": "^0.9.1",
-    "tree-kit": "^0.6.0"
+    "string-kit": "^0.9.6",
+    "tree-kit": "^0.6.1"
   },
   "devDependencies": {
     "browserify": "^16.2.3",
@@ -41,7 +41,7 @@
     "title": "Rest Query (shared lib)",
     "years": [
       2014,
-      2018
+      2019
     ],
     "owner": "Cédric Ronvel"
   }
