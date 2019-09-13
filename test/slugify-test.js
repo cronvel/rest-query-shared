@@ -47,7 +47,6 @@ describe( "Slugify" , () => {
 		expect( restQuery.slugify( 'My WoNdErful BloG' ) ).to.be( 'my-wonderful-blog' ) ;
 		expect( restQuery.slugify( '  My   WoNdErful   BloG  ' ) ).to.be( 'my-wonderful-blog' ) ;
 		expect( restQuery.slugify( '-My wonderful blog-' ) ).to.be( 'my-wonderful-blog' ) ;
-		expect( restQuery.slugify( 'ØMQ' ) ).to.be( 'omq' ) ;
 	} ) ;
 
 	it( 'edge cases: slugified string that are valid ID/offset should have an hyphen appended' , () => {
@@ -69,7 +68,17 @@ describe( "Slugify" , () => {
 	} ) ;
 
 	it( "unicode character behavior" , () => {
+		expect( restQuery.slugify( '«french quote»' ) ).to.be( 'french-quote' ) ;
+		expect( restQuery.slugify( 'ØMQ' ) ).to.be( 'omq' ) ;
 		expect( restQuery.slugify( 'عرض' , { worldAlpha: true } ) ).to.be( 'erd' ) ;
+	} ) ;
+
+	describe( "Historical bugs" , () => {
+		
+		it( "hyphen at the begining or the end bug when an invalid char is removed" , () => {
+			expect( restQuery.slugify( '« french quote' ) ).to.be( 'french-quote' ) ;
+			expect( restQuery.slugify( 'french quote »' ) ).to.be( 'french-quote' ) ;
+		} ) ;
 	} ) ;
 } ) ;
 
