@@ -61,14 +61,24 @@ describe( "Slugify" , () => {
 		expect( restQuery.slugify( "J'♥ Paris" , { symbols: 'fr' } ) ).to.be( 'j-aime-paris' ) ;
 	} ) ;
 
-	it( "unicode character behavior" , () => {
+	it( "unicode character behavior without the unicode option" , () => {
 		expect( restQuery.slugify( '«french quote»' ) ).to.be( 'french-quote' ) ;
+		expect( restQuery.slugify( "À l'école" ) ).to.be( 'a-l-ecole' ) ;
 		expect( restQuery.slugify( 'ØMQ' ) ).to.be( 'omq' ) ;
 		expect( restQuery.slugify( 'عرض' , { worldAlpha: true } ) ).to.be( 'erd' ) ;
 	} ) ;
 
+	it( "unicode character behavior with the unicode option turned on" , () => {
+		expect( restQuery.slugify( '«french quote»' , { unicode: true } ) ).to.be( 'french-quote' ) ;
+		expect( restQuery.slugify( "À l'école" , { unicode: true } ) ).to.be( 'à-l-école' ) ;
+		expect( restQuery.slugify( 'ØMQ' , { unicode: true } ) ).to.be( 'ømq' ) ;
+
+		expect( restQuery.slugify( 'عِنْدَمَا ذَهَبْتُ إِلَى ٱلْمَكْتَبَةِ' , { unicode: true } ) ).to.be( 'عِنْدَمَا-ذَهَبْتُ-إِلَى-ٱلْمَكْتَبَةِ' ) ;
+		expect( restQuery.slugify( 'كنت أريد أن أقرأ كتابا عن تاريخ المرأة في فرنسا' , { unicode: true } ) ).to.be( 'كنت-أريد-أن-أقرأ-كتابا-عن-تاريخ-المرأة-في-فرنسا' ) ;
+		expect( restQuery.slugify( 'كُنْتُ أُرِيدُ أَنْ أَقْرَأَ كِتَابًا عَنْ تَارِيخِ ٱلْمَرْأَةِ فِي فَرَنْسَا' , { unicode: true } ) ).to.be( 'كُنْتُ-أُرِيدُ-أَنْ-أَقْرَأَ-كِتَابًا-عَنْ-تَارِيخِ-ٱلْمَرْأَةِ-فِي-فَرَ' ) ;
+	} ) ;
+
 	describe( "Historical bugs" , () => {
-		
 		it( "hyphen at the begining or the end bug when an invalid char is removed" , () => {
 			expect( restQuery.slugify( '« french quote' ) ).to.be( 'french-quote' ) ;
 			expect( restQuery.slugify( 'french quote »' ) ).to.be( 'french-quote' ) ;
