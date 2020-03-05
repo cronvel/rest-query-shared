@@ -32,6 +32,7 @@
 
 const restQuery = require( '..' ) ;
 //const stream = require( 'stream' ) ;
+const unicode = require( 'string-kit/lib/unicode.js' ) ;
 
 
 
@@ -116,31 +117,31 @@ describe( "Path's node parsing" , () => {
 
 	it( "should parse a valid slugId node as a slugId" , () => {
 		expect( parsePathNode( 'abc' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'abc' , value: 'abc'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'abc' , value: 'abc'
 		} ) ;
 		expect( parsePathNode( 'cronvel' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'cronvel' , value: 'cronvel'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'cronvel' , value: 'cronvel'
 		} ) ;
 		expect( parsePathNode( 'c20nv31' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'c20nv31' , value: 'c20nv31'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'c20nv31' , value: 'c20nv31'
 		} ) ;
 		expect( parsePathNode( 'my-blog-entry' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'my-blog-entry' , value: 'my-blog-entry'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'my-blog-entry' , value: 'my-blog-entry'
 		} ) ;
 		expect( parsePathNode( 'a-24-characters-long-sid' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'a-24-characters-long-sid' , value: 'a-24-characters-long-sid'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'a-24-characters-long-sid' , value: 'a-24-characters-long-sid'
 		} ) ;
 		expect( parsePathNode( 'agaaaaaaaaaaaaaaaaaaaaaa' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'agaaaaaaaaaaaaaaaaaaaaaa' , value: 'agaaaaaaaaaaaaaaaaaaaaaa'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'agaaaaaaaaaaaaaaaaaaaaaa' , value: 'agaaaaaaaaaaaaaaaaaaaaaa'
 		} ) ;
 		expect( parsePathNode( '01b' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: '01b' , value: '01b'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: '01b' , value: '01b'
 		} ) ;
 		expect( parsePathNode( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' , value: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' , value: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga'
 		} ) ;
 		expect( parsePathNode( 'a' ) ).to.equal( {
-			type: 'slugId' , isCollection: false , isDocument: true , identifier: 'a' , value: 'a'
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'a' , value: 'a'
 		} ) ;
 
 		// Invalid entries
@@ -148,6 +149,28 @@ describe( "Path's node parsing" , () => {
 		expect( parsePathNode( 'my-Blog-entry' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( 'My-blog-entry' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfgaz' ) ).to.be.an( Error ) ;
+	} ) ;
+
+	it( "should parse a valid unicode slugId node as a slugId" , () => {
+		var arabic , arabicHyphen ;
+		arabic = 'عِنْدَمَا ذَهَبْتُ إِلَى ٱلْمَكْتَبَةِ' ;
+		arabicHyphen = arabic.replace( / /g , '-' ) ;
+		//console.log( arabicHyphen ) ;
+		expect( parsePathNode( arabicHyphen ) ).to.equal( {
+			type: 'slugId' , unicode: true ,isCollection: false , isDocument: true , identifier: arabicHyphen , value: arabicHyphen
+		} ) ;
+		
+		// Warning: arabic diacritics count as one char, unlike french diacritics which are composed with the letter,
+		// so we can hit the 72-chars limit faster.
+		// The first has 77 chars because it has all the vowels (uncommon), the last has 47 chars, using the more common spelling.
+		//arabic = 'كُنْتُ أُرِيدُ أَنْ أَقْرَأَ كِتَابًا عَنْ تَارِيخِ ٱلْمَرْأَةِ فِي فَرَنْسَا' ;
+		arabic = 'كنت أريد أن أقرأ كتابا عن تاريخ المرأة في فرنسا' ;
+		arabicHyphen = arabic.replace( / /g , '-' ) ;
+		//console.log( arabicHyphen , arabicHyphen.length , unicode.length( arabicHyphen ) ) ;
+		//var array = unicode.toArray( arabicHyphen ) ; console.log( array.length , array ) ;
+		expect( parsePathNode( arabicHyphen ) ).to.equal( {
+			type: 'slugId' , unicode: true ,isCollection: false , isDocument: true , identifier: arabicHyphen , value: arabicHyphen
+		} ) ;
 	} ) ;
 
 	it( "should parse a valid property node as a property of the current object" , () => {
@@ -1300,7 +1323,7 @@ describe( "Path pattern matching" , () => {
 			"full": [ {
 				"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} ] ,
 			"boards": {
 				"match": [ {
@@ -1308,7 +1331,7 @@ describe( "Path pattern matching" , () => {
 				} ] ,
 				"before": [] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1316,12 +1339,12 @@ describe( "Path pattern matching" , () => {
 				"onward": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildSlugId": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1330,15 +1353,15 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"boardsDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1347,10 +1370,10 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			}
 		} ) ;
@@ -1365,11 +1388,11 @@ describe( "Path pattern matching" , () => {
 			"full": [ {
 				"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} , {
 				"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} ] ,
 			"boards": {
 				"match": [ {
@@ -1377,11 +1400,11 @@ describe( "Path pattern matching" , () => {
 				} ] ,
 				"before": [] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1389,16 +1412,16 @@ describe( "Path pattern matching" , () => {
 				"onward": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildSlugId": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1406,24 +1429,24 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"boardsDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1431,19 +1454,19 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"users": {
@@ -1453,32 +1476,32 @@ describe( "Path pattern matching" , () => {
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
 				"onward": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"usersDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
@@ -1486,14 +1509,14 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			}
 		} ) ;
@@ -1505,11 +1528,11 @@ describe( "Path pattern matching" , () => {
 			"full": [ {
 				"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} , {
 				"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} ] ,
 			"boards": {
 				"match": [ {
@@ -1517,11 +1540,11 @@ describe( "Path pattern matching" , () => {
 				} ] ,
 				"before": [] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1529,16 +1552,16 @@ describe( "Path pattern matching" , () => {
 				"onward": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"boardsDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1546,19 +1569,19 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"users": {
@@ -1568,27 +1591,27 @@ describe( "Path pattern matching" , () => {
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
 				"onward": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildSlugId1": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1596,29 +1619,29 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildSlugId2": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
@@ -1626,24 +1649,24 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"usersDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
@@ -1651,14 +1674,14 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			}
 		} ) ;
@@ -1743,7 +1766,7 @@ describe( "Path pattern matching" , () => {
 			"full": [ {
 				"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} ] ,
 			"boards": {
 				"match": [ {
@@ -1751,7 +1774,7 @@ describe( "Path pattern matching" , () => {
 				} ] ,
 				"before": [] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1759,12 +1782,12 @@ describe( "Path pattern matching" , () => {
 				"onward": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1773,15 +1796,15 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"boardsDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1790,10 +1813,10 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			}
 		} ) ;
@@ -1946,11 +1969,11 @@ describe( "Path pattern matching" , () => {
 			"full": [ {
 				"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} , {
 				"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} ] ,
 			"boards": {
 				"match": [ {
@@ -1958,11 +1981,11 @@ describe( "Path pattern matching" , () => {
 				} ] ,
 				"before": [] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1970,16 +1993,16 @@ describe( "Path pattern matching" , () => {
 				"onward": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -1987,24 +2010,24 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"boardsDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -2012,19 +2035,19 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"users": {
@@ -2034,32 +2057,32 @@ describe( "Path pattern matching" , () => {
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
 				"onward": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"usersDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
@@ -2067,14 +2090,14 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			}
 		} ) ;
@@ -2252,11 +2275,11 @@ describe( "Path pattern matching" , () => {
 			"full": [ {
 				"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} , {
 				"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 			} , {
-				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+				"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 			} ] ,
 			"boards": {
 				"match": [ {
@@ -2264,11 +2287,11 @@ describe( "Path pattern matching" , () => {
 				} ] ,
 				"before": [] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -2276,16 +2299,16 @@ describe( "Path pattern matching" , () => {
 				"onward": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"boardsDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -2293,19 +2316,19 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"users": {
@@ -2315,27 +2338,27 @@ describe( "Path pattern matching" , () => {
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"after": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
 				"onward": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildDocument1": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
@@ -2343,29 +2366,29 @@ describe( "Path pattern matching" , () => {
 				"after": [ {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"wildDocument2": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
@@ -2373,24 +2396,24 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			} ,
 			"usersDocument": {
 				"match": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"before": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} ] ,
@@ -2398,14 +2421,14 @@ describe( "Path pattern matching" , () => {
 				"upto": [ {
 					"value": "Boards" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "boards"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} , {
 					"value": "Users" , "isDocument": false , "isCollection": true , "type": "collection" , "identifier": "users"
 				} , {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ] ,
 				"onward": [ {
-					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "identifier": "slug"
+					"value": "slug" , "isDocument": true , "isCollection": false , "type": "slugId" , "unicode": false , "identifier": "slug"
 				} ]
 			}
 		} ) ;

@@ -34,12 +34,6 @@ const restQuery = require( '..' ) ;
 
 
 
-
-
-/* Tests */
-
-
-
 describe( "Slugify" , () => {
 
 	it( "should slugify ASCII string" , () => {
