@@ -928,7 +928,7 @@ pathModule.parseNode = function( str , isPattern ) {
 
 	// Lastly, check if it is a slugId
 	// Should come after id and range/offset
-	if ( charmap.lowerCaseAndDigitArray.includes( str[ 0 ] ) && str.match( charmap.slugIdRegExp ) ) {
+	if ( charmap.lowerCaseAndDigitArray.includes( str[ 0 ] ) && str.length >= 2 && str.match( charmap.slugIdRegExp ) ) {
 		// This is a restricted a-z 0-9 and - slug
 		parsed.type = 'slugId' ;
 		parsed.unicode = false ;
@@ -937,7 +937,7 @@ pathModule.parseNode = function( str , isPattern ) {
 		return parsed ;
 	}
 
-	if ( str.match( charmap.unicodeSlugIdRegExp ) ) {
+	if ( str.length >= 2 && str.match( charmap.unicodeSlugIdRegExp ) ) {
 		// This is an extended unicode slug, allowing non-uppercase letters, numbers and accents
 		parsed.type = 'slugId' ;
 		parsed.unicode = true ;

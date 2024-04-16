@@ -140,12 +140,13 @@ describe( "Path's node parsing" , () => {
 		expect( parsePathNode( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' ) ).to.equal( {
 			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga' , value: 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfga'
 		} ) ;
-		expect( parsePathNode( 'a' ) ).to.equal( {
-			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'a' , value: 'a'
+		expect( parsePathNode( 'aa' ) ).to.equal( {
+			type: 'slugId' , unicode: false ,isCollection: false , isDocument: true , identifier: 'aa' , value: 'aa'
 		} ) ;
 
 		// Invalid entries
 		expect( parsePathNode( 'afaaaaaaaaaaaaaaaaaaaaaa' ).type ).not.to.be( 'slugId' ) ;
+		expect( parsePathNode( 'a' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( 'my-Blog-entry' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( 'My-blog-entry' ) ).to.be.an( Error ) ;
 		expect( parsePathNode( 'azekjsdlmfjqmsljdfmklqsdlmfjslmfvqsdmljfgqsdjgmklhsdmhqgfqsdlmghlmkdhfgaz' ) ).to.be.an( Error ) ;
