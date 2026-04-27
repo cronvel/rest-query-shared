@@ -54,6 +54,9 @@ describe( "Path's node parsing" , () => {
 		expect( parsePathNode( 'U' ) ).to.equal( {
 			type: 'collection' , isCollection: true , isDocument: false , identifier: 'u' , value: 'U'
 		} ) ;
+		expect( parsePathNode( 'ItemTags' ) ).to.equal( {
+			type: 'collection' , isCollection: true , isDocument: false , identifier: 'itemTags' , value: 'ItemTags'
+		} ) ;
 	} ) ;
 
 	it( "should parse a valid method node as a method" , () => {
